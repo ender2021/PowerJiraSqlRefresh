@@ -19,6 +19,7 @@ foreach ($key in $projectKeys) {
         [PSCustomObject]@{
             Project_Id = $_.id
             Project_Key = $_.key
+            Project_Name = $_.name
             Description = $_.description
             Lead_User_Id = $_.lead.accountId
             Lead_User_Name = $_.lead.displayName

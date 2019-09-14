@@ -123,7 +123,7 @@ do {
                 Time_Spent = $_.fields.timespent
                 Aggregate_Time_Spent = $_.fields.aggregateTimeSpent
                 Resolution_Date = $_.fields.resolutionDate
-                Work_Ratio = $_.fields.workRatio
+                Work_Ratio = $null #$_.fields.workRatio
                 Created_Date = $_.fields.created
                 Time_Estimate = $_.fields.timeEstimate
                 Aggregate_Time_Original_Estimate = $_.fields.aggregateTimeOriginalEstimate
