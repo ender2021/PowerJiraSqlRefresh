@@ -29,5 +29,5 @@ foreach ($key in $projectKeys) {
             Private = [boolean]$_.isPrivate
             Refresh_Id = $refreshId
         }
-    } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Project"
+    } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Project"
 }

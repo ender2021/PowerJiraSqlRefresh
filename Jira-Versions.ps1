@@ -28,5 +28,5 @@ foreach ($key in $projectKeys) {
             User_Release_Date = if ($_.userReleaseDate) {[datetime]$_.userReleaseDate} else {$null}
             Refresh_Id = $refreshId
         }
-    } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Version"
+    } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Version"
 }

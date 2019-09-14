@@ -20,4 +20,4 @@
         Description = $_.description
         Refresh_Id = $refreshId
     }
-} | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Project_Category"
+} | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Project_Category"

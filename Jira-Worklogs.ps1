@@ -38,7 +38,7 @@ do {
                 Comment = $_.comment
                 Refresh_Id = $refreshId
             }
-        } | Where-Object { $idList -notcontains $_.Worklog_Id } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Worklogs"
+        } | Where-Object { $idList -notcontains $_.Worklog_Id } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Worklogs"
 
         $idList += $ids
     }

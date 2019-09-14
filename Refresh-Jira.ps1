@@ -31,6 +31,8 @@ $lastRefreshDate = $lastRefresh.Refresh_Start
 $thisRefresh = Invoke-SqlCmd -ServerInstance $sqlInstance -Database $sqlDatabase -Query "EXEC dbo.usp_Jira_Get_Max_Refresh"
 $refreshId = $thisRefresh.Refresh_Id
 
+Invoke-SqlCmd -ServerInstance $sqlInstance -Database $sqlDatabase -Query "EXEC dbo.usp_Jira_Staging_Clear"
+
 ####################################################
 #  OPEN JIRA SESSION                               #
 ####################################################
@@ -41,30 +43,36 @@ Open-JiraSession -UserName $JiraCredentials.UserName -Password $JiraCredentials.
 #  REFRESH STEPS                                   #
 ####################################################
 
-Write-Verbose "Updating worklogs..."
+Write-Verbose "Staging worklogs..."
 . .\Jira-Worklogs.ps1
 
-Write-Verbose "Updating project categories..."
+Write-Verbose "Staging project categories..."
 . .\Jira-ProjectCategories.ps1
 
-Write-Verbose "Updating projects..."
+Write-Verbose "Staging projects..."
 . .\Jira-Projects.ps1
 
-Write-Verbose "Updating components..."
+Write-Verbose "Staging components..."
 . .\Jira-Components.ps1
 
-Write-Verbose "Updating versions..."
+Write-Verbose "Staging versions..."
 . .\Jira-Versions.ps1
 
-Write-Verbose "Updating issues..."
+Write-Verbose "Staging issues..."
 . .\Jira-Issues.ps1
 
 ####################################################
-#  CLOSE JIRA SESSION                               #
+#  CLOSE JIRA SESSION                              #
 ####################################################
 
 Close-JiraSession
 
+####################################################
+#  SYNC STAGING TO LIVE TABLES                     #
+####################################################
+
+Write-Verbose "Synchronizing staging..."
+Invoke-SqlCmd -ServerInstance $sqlInstance -Database $sqlDatabase -Query "EXEC dbo.usp_Jira_Staging_Synchronize"
 
 ####################################################
 #  RECORD BATCH END                                #

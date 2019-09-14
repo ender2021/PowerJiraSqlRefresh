@@ -156,7 +156,7 @@ do {
                 Parent_Key = if ($_.fields.parent) {$_.fields.parent.key} else {$null}
                 Refresh_Id = $refreshId
             }
-        } | Where-Object { $idList -notcontains $_.Issue_Id } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Issue"
+        } | Where-Object { $idList -notcontains $_.Issue_Id } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Issue"
         
         $idList += $ids
     }
@@ -168,13 +168,13 @@ do {
 } while ($isNotLast)
 
 #write sprints to the database
-$allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Sprint"
+$allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Sprint"
 
 #write issue sprint mappings to the database
-$issueSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Issue_Sprint"
+$issueSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Issue_Sprint"
 
 #write issue component mappings to the database
-$issueComponents | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Issue_Component"
+$issueComponents | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Issue_Component"
 
 #write issue fix version mappings to the database
-$issueFixVersions | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Issue_Fix_Version"
+$issueFixVersions | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Issue_Fix_Version"

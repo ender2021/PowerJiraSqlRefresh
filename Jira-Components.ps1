@@ -29,5 +29,5 @@ foreach ($key in $projectKeys) {
             Assignee_Type_Valid = [boolean]$_.isAssigneeTypeValid
             Refresh_Id = $refreshId
         }
-    } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_Jira_Component"
+    } | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName "tbl_stg_Jira_Component"
 }
