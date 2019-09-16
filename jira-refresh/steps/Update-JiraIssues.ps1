@@ -31,12 +31,14 @@ function Update-JiraIssues {
         Write-Verbose "Begin Jira Issue Update"
         $issueTable = "tbl_stg_Jira_Issue"
         $sprintTable = "tbl_stg_Jira_Sprint"
+        $issueTypeTable = "tbl_stg_Jira_Issue_Type"
         $issueSprintTable = "tbl_stg_Jira_Issue_Sprint"
         $issueComponentTable = "tbl_stg_Jira_Issue_Component"
         $issueFixVersionTable = "tbl_stg_Jira_Issue_Fix_Version"
         
         #results arrays
         $allIssues = @()
+        $allIssueTypes = @()
         $allSprints = @()
 
         # arrays to hold one to many relationship information
@@ -77,7 +79,12 @@ function Update-JiraIssues {
                     if ($fields.fixVersions -and $fields.fixVersions.Count -gt 0) {
                         $issueFixVersions += $fields.fixVersions | ForEach-Object { $_.id } | Read-JiraIssueVersion -IssueId $issueId -RefreshId $refreshId
                     }
-        
+
+                    # create and keep issue type information, if we don't have it already
+                    if (($allIssueTypes | ForEach-Object { $_.Issue_Type_Id }) -notcontains $fields.issueType.id) {
+                        $allIssueTypes += Read-JiraIssueType -Data $fields.issueType -RefreshId $refreshId
+                    }
+
                     # create and keep sprint information
                     $sprints = $fields.customfield_10127
                     if ($sprints -and $sprints.Count -gt 0) {
@@ -115,6 +122,9 @@ function Update-JiraIssues {
 
         Write-Verbose "Writing Jira Sprints to staging table"
         $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
+
+        Write-Verbose "Writing Jira Issue Types to staging table"
+        $allIssueTypes | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueTypeTable
 
         Write-Verbose "Writing Jira Issue-Sprint Mappings to staging table"
         $issueSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueSprintTable
