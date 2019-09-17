@@ -57,6 +57,8 @@ Update-JiraProjectCategories -RefreshId $refreshId -SqlInstance $sqlInstance -Sq
 
 Update-JiraStatusCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
+Update-JiraStatuses -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+
 $projectKeys | Update-JiraProjects -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
 $projectKeys | Update-JiraVersions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
