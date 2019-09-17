@@ -22,8 +22,8 @@ function Read-JiraIssueVersion {
     
     process {
         [PSCustomObject]@{
-            Version_Id = $VersionId
             Issue_Id = $IssueId
+            Version_Id = $VersionId
             Refresh_Id = $RefreshId
         }
     }

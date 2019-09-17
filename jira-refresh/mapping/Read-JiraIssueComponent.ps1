@@ -22,8 +22,8 @@ function Read-JiraIssueComponent {
     
     process {
         [PSCustomObject]@{
-            Component_Id = $ComponentId
             Issue_Id = $IssueId
+            Component_Id = $ComponentId
             Refresh_Id = $RefreshId
         }
     }
