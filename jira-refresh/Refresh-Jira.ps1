@@ -55,6 +55,8 @@ Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -SqlInstance $sqlInstance
 
 Update-JiraProjectCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
+Update-JiraStatusCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+
 $projectKeys | Update-JiraProjects -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
 $projectKeys | Update-JiraVersions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
