@@ -50,23 +50,24 @@ Open-JiraSession -UserName $JiraCredentials.UserName -Password $JiraCredentials.
 
 Write-Verbose "Beginning data staging..."
 
+# do all of the no-context calls first - these are lookup tables
+Update-JiraProjectCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Update-JiraStatusCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Update-JiraStatuses -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Update-JiraResolutions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Update-JiraPriorities -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+
+# next do the updates where the only context is the list of projects
+$projectKeys | Update-JiraProjects -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+$projectKeys | Update-JiraVersions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+$projectKeys | Update-JiraComponents -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+
+# worklogs are refreshed based on the last unix timestamp of a refresh
+# need to both update changed / new worklogs, and remove any that have been deleted
 Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
-Update-JiraProjectCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
-Update-JiraStatusCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
-Update-JiraStatuses -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
-Update-JiraResolutions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
-$projectKeys | Update-JiraProjects -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
-$projectKeys | Update-JiraVersions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
-$projectKeys | Update-JiraComponents -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-
+# finally, issues are retrieved using jql crafted from the project list and date of last refresh
 $updatedDate = Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm"
 $jql = "Project in (" + ($projectKeys -join ",") + ") AND updatedDate >= '$updatedDate'"
 Update-JiraIssues -Jql $jql -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
