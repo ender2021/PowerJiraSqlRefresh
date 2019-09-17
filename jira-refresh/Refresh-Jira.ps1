@@ -18,7 +18,8 @@ Get-ChildItem -Path .\steps -Filter *.ps1 |ForEach-Object {
 #configure the script targets
 $sqlInstance = "localhost"
 $sqlDatabase = "Jira"
-$projectKeys = @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS")
+#$projectKeys = @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS")
+$projectKeys = @("GROPGDIS")
 
 ####################################################
 #  GET PREVIOUS BATCH INFO                         #
@@ -50,6 +51,7 @@ Open-JiraSession -UserName $JiraCredentials.UserName -Password $JiraCredentials.
 Write-Verbose "Beginning data staging..."
 
 Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
 Update-JiraProjectCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
