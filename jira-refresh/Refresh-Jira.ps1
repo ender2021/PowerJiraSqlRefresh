@@ -18,8 +18,7 @@ Get-ChildItem -Path .\steps -Filter *.ps1 |ForEach-Object {
 #configure the script targets
 $sqlInstance = "localhost"
 $sqlDatabase = "Jira"
-#$projectKeys = @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS")
-$projectKeys = @("GROPGDIS")
+$projectKeys = @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS","GSPP","GSISPLAN")
 
 ####################################################
 #  GET PREVIOUS BATCH INFO                         #

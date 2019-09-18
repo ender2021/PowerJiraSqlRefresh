@@ -35,6 +35,7 @@ function Update-JiraIssues {
         $issueSprintTable = "tbl_stg_Jira_Issue_Sprint"
         $issueComponentTable = "tbl_stg_Jira_Issue_Component"
         $issueFixVersionTable = "tbl_stg_Jira_Issue_Fix_Version"
+        $issueLabelsTable = "tbl_stg_Jira_Issue_Label"
         
         #results arrays
         $allIssues = @()
@@ -45,6 +46,7 @@ function Update-JiraIssues {
         $issueSprints = @()
         $issueComponents = @()
         $issueFixVersions = @()
+        $issueLabels = @()
 
         #looping variables
         $startAt = 0
@@ -85,6 +87,11 @@ function Update-JiraIssues {
                         $allIssueTypes += Read-JiraIssueType -Data $fields.issueType -RefreshId $refreshId
                     }
 
+                    # capture label data
+                    if ($fields.labels -and $fields.labels.Count -gt 0) {
+                        $issueLabels += $fields.labels | Read-JiraIssueLabel -IssueId $issueId -RefreshId $refreshId
+                    }
+
                     # create and keep sprint information
                     $sprints = $fields.customfield_10127
                     if ($sprints -and $sprints.Count -gt 0) {
@@ -119,6 +126,9 @@ function Update-JiraIssues {
     end {
         Write-Verbose "Writing Jira Issues to staging table"
         $allIssues | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $issueTable
+
+        Write-Verbose "Writing Jira Issue Labels to staging table"
+        $issueLabels | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLabelsTable -Force
 
         Write-Verbose "Writing Jira Sprints to staging table"
         $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
