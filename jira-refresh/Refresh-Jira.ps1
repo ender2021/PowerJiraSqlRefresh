@@ -55,6 +55,7 @@ Update-JiraStatusCategories -RefreshId $refreshId -SqlInstance $sqlInstance -Sql
 Update-JiraStatuses -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 Update-JiraResolutions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 Update-JiraPriorities -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Update-JiraIssueLinkTypes -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
 # next do the updates where the only context is the list of projects
 $projectKeys | Update-JiraProjects -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
