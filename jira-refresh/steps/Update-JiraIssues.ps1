@@ -35,7 +35,8 @@ function Update-JiraIssues {
         $issueSprintTable = "tbl_stg_Jira_Issue_Sprint"
         $issueComponentTable = "tbl_stg_Jira_Issue_Component"
         $issueFixVersionTable = "tbl_stg_Jira_Issue_Fix_Version"
-        $issueLabelsTable = "tbl_stg_Jira_Issue_Label"
+        $issueLabelTable = "tbl_stg_Jira_Issue_Label"
+        $issueLinkTable = "tbl_stg_Jira_Issue_Link"
         
         #results arrays
         $allIssues = @()
@@ -47,6 +48,7 @@ function Update-JiraIssues {
         $issueComponents = @()
         $issueFixVersions = @()
         $issueLabels = @()
+        $issueLinks = @()
 
         #looping variables
         $startAt = 0
@@ -92,6 +94,23 @@ function Update-JiraIssues {
                         $issueLabels += $fields.labels | Read-JiraIssueLabel -IssueId $issueId -RefreshId $refreshId
                     }
 
+                    #capture issue link data
+                    if ($fields.issueLinks -and $fields.issueLinks.Count -gt 0) {
+                        #get a list of parsed relationships
+                        $tempLinks = $fields.issueLinks | Read-JiraIssueLink -IssueId $issueId -IssueKey $issue.key -RefreshId $refreshId
+
+                        #loop through the list we parsed and check to make sure we don't already have it from the other issue in the link
+                        #if we don't, added it to the master list
+                        foreach($link in $tempLinks) {
+                            $count = ($issueLinks | Where-Object {
+                                        ($_.Out_Issue_Id -eq $link.Out_Issue_Id) -and
+                                        ($_.In_Issue_Id -eq $link.In_Issue_Id) -and
+                                        ($_.Link_Type_Id -eq $link.Link_Type_Id)
+                                     }).Length
+                            if ($count -eq 0) { $issueLinks += $link }
+                        }
+                    }
+
                     # create and keep sprint information
                     $sprints = $fields.customfield_10127
                     if ($sprints -and $sprints.Count -gt 0) {
@@ -128,7 +147,10 @@ function Update-JiraIssues {
         $allIssues | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $issueTable
 
         Write-Verbose "Writing Jira Issue Labels to staging table"
-        $issueLabels | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLabelsTable -Force
+        $issueLabels | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLabelTable
+
+        Write-Verbose "Writing Jira Issue Links to staging table"
+        $issueLinks | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLinkTable
 
         Write-Verbose "Writing Jira Sprints to staging table"
         $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
