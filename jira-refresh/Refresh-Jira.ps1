@@ -19,6 +19,8 @@ Get-ChildItem -Path .\steps -Filter *.ps1 |ForEach-Object {
 $sqlInstance = "localhost"
 $sqlDatabase = "Jira"
 $projectKeys = @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS","GSPP","GSISPLAN")
+$projectJql = "Project in (" + ($projectKeys -join ",") + ")"
+$refreshDeleted = $true
 
 ####################################################
 #  GET PREVIOUS BATCH INFO                         #
@@ -68,10 +70,15 @@ $projectKeys | Update-JiraComponents -RefreshId $refreshId -SqlInstance $sqlInst
 Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
 
-# finally, issues are retrieved using jql crafted from the project list and date of last refresh
+# issues are retrieved using jql crafted from the project list and date of last refresh
 $updatedDate = Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm"
-$jql = "Project in (" + ($projectKeys -join ",") + ") AND updatedDate >= '$updatedDate'"
-Update-JiraIssues -Jql $jql -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+$partialJql = "$projectJql AND updatedDate >= '$updatedDate'"
+Update-JiraIssues -Jql $partialJql -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+
+#if configured to do so, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
+if ($refreshDeleted) {
+    Update-JiraDeletedIssues -Jql $projectJql -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+}
 
 ####################################################
 #  CLOSE JIRA SESSION                              #
@@ -84,7 +91,7 @@ Close-JiraSession
 ####################################################
 
 Write-Verbose "Synchronizing staging to live tables..."
-Sync-JiraStaging $sqlInstance $sqlDatabase
+Sync-JiraStaging $refreshDeleted $sqlInstance $sqlDatabase
 
 ####################################################
 #  RECORD BATCH END                                #
