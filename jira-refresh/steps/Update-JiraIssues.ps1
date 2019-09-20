@@ -122,7 +122,7 @@ function Update-JiraIssues {
                         $allSprints += $sprintList | Where-Object { $currSprintIds -notcontains $_.Sprint_Id }
         
                         #add to the list of issue sprint mappings
-                        $issueSprints += $currSprintIds | Read-JiraIssueSprint -IssueId $issueId -RefreshId $refreshId
+                        $issueSprints += $sprintList | ForEach-Object { [int]$_.Sprint_Id } | Read-JiraIssueSprint -IssueId $issueId -RefreshId $refreshId
                     }
         
                     # create and return issue object
