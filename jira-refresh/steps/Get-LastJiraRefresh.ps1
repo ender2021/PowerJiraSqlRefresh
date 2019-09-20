@@ -16,7 +16,7 @@ function Get-LastJiraRefresh {
     }
     
     process {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Get_Max_Refresh"
+        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Refresh_Get_Max"
     }
     
     end {

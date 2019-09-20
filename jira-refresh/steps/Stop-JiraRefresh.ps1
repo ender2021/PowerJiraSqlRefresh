@@ -21,7 +21,7 @@ function Stop-JiraRefresh {
     }
     
     process {
-        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Update_Refresh_End $RefreshId"
+        Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Refresh_Update_Refresh $RefreshId"
     }
     
     end {

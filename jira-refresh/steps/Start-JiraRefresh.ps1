@@ -31,7 +31,7 @@ function Start-JiraRefresh {
         ) | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName "tbl_Jira_Refresh"
 
         #return the id of the batch we just started
-        (Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Get_Max_Refresh").Refresh_Id
+        (Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Refresh_Get_Max").Refresh_Id
     }
     
     end {
