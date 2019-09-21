@@ -56,6 +56,7 @@ function Read-JiraIssue {
             Votes = $Datafields.votes.votes
             Parent_Id = if ($Data.fields.parent) {$Data.fields.parent.id} else {$null}
             Parent_Key = if ($Data.fields.parent) {$Data.fields.parent.key} else {$null}
+            Epic_Name = if ($Data.fields.customfield_10125) {$Data.fields.customfield_10125} else {$null}
             Refresh_Id = $RefreshId
         }
     }
