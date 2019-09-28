@@ -1,18 +1,23 @@
 function Start-JiraRefresh {
     [CmdletBinding()]
     param (
+        # Refresh type
+        [Parameter(Mandatory,Position=0)]
+        [string]
+        $RefreshType,
+
         # The sql instance to update data in
-        [Parameter(Mandatory,Position=2)]
+        [Parameter(Mandatory,Position=1)]
         [string]
         $SqlInstance,
 
         # The sql database to update data in
-        [Parameter(Mandatory,Position=3)]
+        [Parameter(Mandatory,Position=2)]
         [string]
         $SqlDatabase,
 
         # The schema to use when updating data
-        [Parameter(Position=4)]
+        [Parameter(Position=3)]
         [string]
         $SchemaName="dbo"
     )
@@ -21,17 +26,8 @@ function Start-JiraRefresh {
     }
     
     process {
-        #create a new refresh batch object and write it to the database
-        @(
-            [PSCustomObject]@{
-                Refresh_Id = ''
-                Refresh_Start = [datetime](Get-Date)
-                Refresh_Start_Unix = [int][double]::Parse((Get-Date -UFormat %s))
-            }
-        ) | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName "tbl_Jira_Refresh"
-
-        #return the id of the batch we just started
-        (Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Refresh_Get_Max").Refresh_Id
+        #invoke the sproc to start a refresh and return the id it gives us
+        (Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "EXEC dbo.usp_Jira_Refresh_Start $RefreshType").Refresh_Id
     }
     
     end {
