@@ -17,7 +17,7 @@ function Read-JiraSprint {
     
     process {
         #extract the meaningful bit from the string
-        $var = $Data -match '\[(.*)\]'
+        $var = $Data -match '(?s)\[(.*)\]'
         $raw = $Matches[0]
 
         #have to take a weird approach to parsing due to the delimiter also being a valid character in the Goal value
@@ -39,8 +39,8 @@ function Read-JiraSprint {
             State = $strArr[3]
             Name = $strArr[4]
             Goal = $strArr[5]
-            Start_Date = [datetime](Get-Date $strArr[6])
-            End_Date = [datetime](Get-Date $strArr[7])
+            Start_Date = if($strArr[6] -eq '<null>') { $null } else { [datetime](Get-Date $strArr[6]) }
+            End_Date = if($strArr[7] -eq '<null>') { $null } else { [datetime](Get-Date $strArr[7]) }
             Complete_Date = if ($strArr[8] -eq '<null>') { $null } else { [datetime](Get-Date $strArr[8]) }
             Sequence = [int]$strArr[9]
             Refresh_Id = $RefreshId
