@@ -15,29 +15,54 @@ Get-ChildItem -Path .\steps -Filter *.ps1 |ForEach-Object {
     . $_.FullName
 }
 
-#configure the script targets
-$sqlInstance = "localhost"
-$sqlDatabase = "Jira"
-$projectKeys = @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS","GSPP","GSISPLAN")
-$projectJql = "Project in (" + ($projectKeys -join ",") + ")"
-$refreshDeleted = $true
-
 ####################################################
-#  GET PREVIOUS BATCH INFO                         #
+#  CONFIGURATION                                   #
 ####################################################
 
-Write-Verbose "Reading previous batch info..."
-$lastRefresh = Get-LastJiraRefresh $sqlInstance $sqlDatabase
-$lastRefreshStamp = $lastRefresh.Refresh_Start_Unix
-$lastRefreshDate = $lastRefresh.Refresh_Start
+#configure the database targets
+$sqlSplat = @{
+    SqlInstance = "localhost"
+    SqlDatabase = "Jira"
+}
+
+#configure what type of refresh to do (F = Full, D = Differential)
+$RefreshTypes = @{
+    Full = "F"
+    Differential = "D"
+}
+$refreshType = $RefreshTypes.Differential
+
+#configuration of the projects to pull
+$getAll = $true
+$projectKeys = if($getAll) {
+    $null
+} else {
+    @("GROPGDIS","GDISPROJ","GDISTRAIN","GRPRIAREP","GRPRIAWEB","SFSDEVOPS","GFO","GSIS","GSPP","GSISPLAN")
+}
+
+####################################################
+#  GET PREVIOUS BATCH INFO / CLEAR PREVIOUS BATCH  #
+####################################################
+
+if ($refreshType -eq $RefreshTypes.Full) {
+    Write-Verbose "Clearing database..."
+    Clear-JiraRefresh @sqlSplat
+    $lastRefreshStamp = 0
+    $lastRefreshDate = (Get-Date '1970-01-01')
+} else {
+    Write-Verbose "Reading previous batch info..."
+    $lastRefresh = Get-LastJiraRefresh @sqlSplat
+    $lastRefreshStamp = $lastRefresh.Refresh_Start_Unix
+    $lastRefreshDate = $lastRefresh.Refresh_Start
+}
 
 ####################################################
 #  BEGIN THE REFRESH BATCH                         #
 ####################################################
 
 Write-Verbose "Beginning batch..."
-Clear-JiraStaging $sqlInstance $sqlDatabase
-$refreshId = Start-JiraRefresh $sqlInstance $sqlDatabase
+Clear-JiraStaging @sqlSplat
+$refreshId = Start-JiraRefresh -RefreshType $refreshType @sqlSplat
 
 ####################################################
 #  OPEN JIRA SESSION                               #
@@ -46,38 +71,81 @@ $refreshId = Start-JiraRefresh $sqlInstance $sqlDatabase
 Open-JiraSession -UserName $JiraCredentials.UserName -Password $JiraCredentials.ApiToken -HostName $JiraCredentials.HostName
 
 ####################################################
-#  REFRESH STEPS                                   #
+#  REFRESH STEP 0 - CONFIGURE                      #
 ####################################################
 
 Write-Verbose "Beginning data staging..."
 
-# do all of the no-context calls first - these are lookup tables
-Update-JiraProjectCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Update-JiraStatusCategories -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Update-JiraStatuses -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Update-JiraResolutions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Update-JiraPriorities -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Update-JiraIssueLinkTypes -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Update-JiraUsers -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+# define a convenient hash for splatting the basic refresh arguments
+$refreshSplat = @{
+    RefreshId = $refreshId
+} + $sqlSplat
 
-# # next do the updates where the only context is the list of projects
-$projectKeys | Update-JiraProjects -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-$projectKeys | Update-JiraVersions -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-$projectKeys | Update-JiraComponents -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+####################################################
+#  REFRESH STEP 1 - NO CONTEXT DATA                #
+####################################################
+
+# these are mostly lookup tables
+Update-JiraProjectCategories @refreshSplat
+Update-JiraStatusCategories @refreshSplat
+Update-JiraStatuses @refreshSplat
+Update-JiraResolutions @refreshSplat
+Update-JiraPriorities @refreshSplat
+Update-JiraIssueLinkTypes @refreshSplat
+Update-JiraUsers @refreshSplat
+
+####################################################
+#  REFRESH STEP 2 - PROJECTS                       #
+####################################################
+
+# update projects, and in the process get a full project key list if necessary
+$projectKeys = Update-JiraProjects -ProjectKeys $projectKeys @refreshSplat | ForEach-Object { $_.Project_Key }
+
+####################################################
+#  REFRESH STEP 3 - PROJECT TAXONS                 #
+####################################################
+
+# next do the updates where the only context is the list of projects
+$projectKeys | Update-JiraVersions @refreshSplat
+$projectKeys | Update-JiraComponents @refreshSplat
+
+####################################################
+#  REFRESH STEP 4 - WORKLOGS                       #
+####################################################
 
 # worklogs are refreshed based on the last unix timestamp of a refresh
 # need to both update changed / new worklogs, and remove any that have been deleted
-Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
-Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @refreshSplat
+Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @sqlSplat
 
-# issues are retrieved using jql crafted from the project list and date of last refresh
-$updatedDate = Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm"
-$partialJql = "$projectJql AND updatedDate >= '$updatedDate'"
-Update-JiraIssues -Jql $partialJql -RefreshId $refreshId -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+####################################################
+#  REFRESH STEP 5 - ISSUES                       #
+####################################################
 
-#if configured to do so, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
-if ($refreshDeleted) {
-    Update-JiraDeletedIssues -Jql $projectJql -SqlInstance $sqlInstance -SqlDatabase $sqlDatabase
+# issues are retrieved using jql crafted from the date of last refresh and optionally a project key list
+
+# first format the date stamp and create the updated date clause
+$jqlUpdateDate = (Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm")
+$updateJql = "updatedDate >= '$jqlUpdateDate'"
+
+# if we're refreshing a specific list of projects, create the clause; otherwise, don't add a project clause
+$projectJql = if($getAll) {
+    ""
+} else {
+    " AND Project in (" + ($projectKeys -join ",") + ")"
+}
+
+# update issues with the crafted JQL
+Update-JiraIssues -Jql ($updateJql + $projectJql) @refreshSplat
+
+#if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
+if ($refreshType -eq $RefreshTypes.Differential) {
+    # use the project list if we're doing a list, otherwise use a "true = true" type clause to get everything
+    if ($getAll) {
+        Update-JiraDeletedIssues -Jql "project is not EMPTY" @sqlSplat
+    } else {
+        Update-JiraDeletedIssues -Jql $projectJql @sqlSplat
+    }
 }
 
 ####################################################
@@ -91,13 +159,13 @@ Close-JiraSession
 ####################################################
 
 Write-Verbose "Synchronizing staging to live tables..."
-Sync-JiraStaging $refreshDeleted $sqlInstance $sqlDatabase
+Sync-JiraStaging -SyncDeleted ($refreshType -eq $RefreshTypes.Differential) @sqlSplat
 
 ####################################################
 #  RECORD BATCH END                                #
 ####################################################
 
 Write-Verbose "Recording batch end..."
-Stop-JiraRefresh $refreshId $sqlInstance $sqlDatabase
+Stop-JiraRefresh @refreshSplat
 
 Write-Verbose "Batch completed!"
