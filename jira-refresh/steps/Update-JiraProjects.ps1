@@ -3,6 +3,8 @@ function Update-JiraProjects {
     param (
         # The list of project keys for projects to update
         [Parameter(Mandatory,Position=0,ValueFromPipeline)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
         [string[]]
         $ProjectKeys,
 
@@ -31,16 +33,52 @@ function Update-JiraProjects {
         Write-Verbose "Begin Jira Project Update"
         $tableName = "tbl_stg_Jira_Project"
         $projects = @()
+        
+        #if no keys were supplied, then get all projects
+        if (($null -eq $ProjectKeys) -or ($ProjectKeys.Count -eq 0))
+        {
+            $startAt = 0
+            $lastPageReached = $false
+            do {
+                Write-Verbose "Getting All Jira Projects"
+                
+                #get a set of results
+                $result = Invoke-JiraGetProjects -MaxResults 50 -StartAt $startAt -Expand @("description","lead")
+    
+                #process the results, if there were more than zero
+                if ($result.values.Count -ne 0) {
+                    #transform the projects into objects and keep them, if we don't have them already
+                    $projects += $result.values | Where-Object {
+                        ($projects | ForEach-Object {$_.Project_Key}) -notcontains $_.key
+                    } | Read-JiraProject -RefreshId $RefreshId
+                }
+    
+                #set the startAt for the potential next call
+                $startAt += $result.values.Count
+    
+                #check if we've reached the last page
+                if ($result.isLast) {
+                    $lastPageReached = $true
+                }
+    
+                #keep going unless we've reached the end of the results
+            } while (!$lastPageReached)
+        }
     }
     
     process {
-        Write-Verbose "Getting Jira Project for Project Key $_"
-        $projects += Invoke-JiraGetProject $_ | Read-JiraProject -RefreshId $RefreshId
+        #if keys were supplied, then we loop through them and get projects
+        if ($_) {
+            Write-Verbose "Getting Jira Project for Project Key $_"
+            $projects += Invoke-JiraGetProject $_ | Read-JiraProject -RefreshId $RefreshId
+        }
     }
     
     end {
         Write-Verbose "Writing Jira Projects to staging table"
         $projects | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
         Write-Verbose "End Jira Project Update"
+        # this function is unique - need to return the objects in order to make sure the project key list for future requests is accurate
+        $projects
     }
 }
