@@ -1,3 +1,45 @@
+<#
+.SYNPOSIS
+	Update a Jira SQL database with data from a Jira Cloud instance
+
+.DESCRIPTION
+    Executes the necessary steps to update a SQL datastore of Jira data from a Jira Cloud instance
+    A PowerJira Session must be opened with Open-JiraSession before calling this method
+
+.PARAMETER RefreshType
+    Indicates whether to do a Full or Differential refresh.  Use values from Get-JiraRefreshTypes
+
+.PARAMETER ProjectKeys
+    Supply this parameter in order to limit the refresh to a specified set of projects.
+    Without this parameter, the method will update all projects
+
+.PARAMETER SqlInstance
+	The connection string for the SQL instance where the data will be updated
+
+.PARAMETER SqlDatabase
+    The name of the database to perform updates in
+    
+.EXAMPLE
+    Open-JiraSession @jiraConnectionDetails
+	Update-Jira -RefreshType (Get-JiraRefreshTypes).Full -SqlInstance localhost -SqlDatabase Jira
+    Close-JiraSession
+
+	Performs a full refresh of all Jira projects on a local sql database
+
+.EXAMPLE
+    Open-JiraSession @jiraConnectionDetails
+    $Params = @{
+        RefreshType = (Get-JiraRefreshTypes).Differential
+        ProjectKeys = @("PROJKEY","MJPK","KEY3")
+        SqlInstance = "my.remote.sql.server,1234"
+        SqlDatabase = "Jira"
+    }
+	Update-Jira @Params
+    Close-JiraSession
+
+	Performs a differential refresh of 3 Jira projects on a remote Sql Server
+
+#>
 function Update-JiraSql {
     [CmdletBinding()]
     param (
@@ -19,12 +61,7 @@ function Update-JiraSql {
         # The sql database to update data in
         [Parameter(Mandatory,Position=3)]
         [string]
-        $SqlDatabase,
-
-        # The schema to use when updating data
-        [Parameter(Position=4)]
-        [string]
-        $SchemaName="dbo"
+        $SqlDatabase
     )
     
     begin {
