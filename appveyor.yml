@@ -1,4 +1,7 @@
 version: 0.0.{build}
+install:
+  ps: Install-Module PowerJira -AllowClobber -Force
+  ps: Install-Module SqlServer -AllowClobber -Force -RequiredVersion 21.1.18147
 environment:
   NugetApiKey:
     secure: r7cE4GhlpOQ85VBbSU2eSeRjYGfPFDZrq5YFOaE8erDtktb8lb17m2yj7IOgH7zJ
