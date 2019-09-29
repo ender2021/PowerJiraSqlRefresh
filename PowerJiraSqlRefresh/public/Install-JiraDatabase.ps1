@@ -1,5 +1,6 @@
 <#
-.SYNPOSIS
+
+.SYNOPSIS
 	Install the Jira database objects used by the PowerJiraSqlRefresh module
 
 .DESCRIPTION
@@ -21,7 +22,6 @@
 	Install-JiraDatabase -SqlInstance "my.remote.sql.server,1234" -SqlDatabase Jira
 
 	Installs objects and data on a remote Sql Server in a database called "Jira"
-
 #>
 function Install-JiraDatabase {
     [CmdletBinding()]

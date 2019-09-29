@@ -1,5 +1,6 @@
 <#
-.SYNPOSIS
+
+.SYNOPSIS
 	Get an object containing the values of Jira Refresh Types
 
 .DESCRIPTION

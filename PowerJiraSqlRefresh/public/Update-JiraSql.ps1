@@ -1,5 +1,6 @@
 <#
-.SYNPOSIS
+
+.SYNOPSIS
 	Update a Jira SQL database with data from a Jira Cloud instance
 
 .DESCRIPTION
