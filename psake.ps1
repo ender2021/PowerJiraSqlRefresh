@@ -34,8 +34,8 @@ Task Test -Depends Init  {
     $lines
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
-    Import-Module $ProjectRoot\PowerConfluence\PowerConfluence.psm1
-    $privateFiles = Get-ChildItem -Path $ProjectRoot\PowerConfluence\private -Recurse -Include *.ps1 -ErrorAction SilentlyContinue
+    Import-Module $ProjectRoot\PowerJiraSqlRefresh\PowerJiraSqlRefresh.psm1
+    $privateFiles = Get-ChildItem -Path $ProjectRoot\PowerJiraSqlRefresh\private -Recurse -Include *.ps1 -ErrorAction SilentlyContinue
     if(@($privateFiles).Count -gt 0) { $privateFiles.FullName | ForEach-Object { . $_ } }
 
     # Gather test results. Store them in a variable and file
