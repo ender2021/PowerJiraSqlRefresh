@@ -8,7 +8,10 @@ if(@($publicFiles).Count -gt 0) { $publicFiles.FullName | ForEach-Object { . $_ 
 Export-ModuleMember -Function $publicFiles.BaseName
 
 if($null -eq $global:PowerJiraSqlRefresh) {
-        $global:PowerJiraSqlRefresh = @{}
+        $global:PowerJiraSqlRefresh = @{
+                SqlObjectsPath = "$PSScriptRoot\public\sql\01-Create-Objects.sql"
+                SqlLookupsPath = "$PSScriptRoot\public\sql\02-Create-Lookups.sql"
+        }
 }
 
 $onRemove = {
