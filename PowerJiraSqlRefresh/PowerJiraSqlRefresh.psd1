@@ -49,7 +49,18 @@ PowerShellVersion = '6.1'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @("PowerJira", "SqlServer")
+RequiredModules = @(
+    @{
+        ModuleName="PowerJira"
+        ModuleVersion="1.0.0"
+        Guid="3f4b7dcb-70b5-4c11-8ad5-353ce5fcc1b4"
+    },
+    @{
+        ModuleName="SqlServer"
+        ModuleVersion="21.1.18179"
+        Guid="97c3b589-6545-4107-a061-3fe23a4e9195"
+    }
+)
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
