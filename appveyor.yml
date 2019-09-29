@@ -1,10 +1,4 @@
 version: 0.0.{build}
-install:
-  - cinst pester
-  - ps: Install-Module dbatools -AllowClobber -Force
-  - ps: Install-Module SqlServer -AllowClobber -Force
-  - ps: Install-Module PowerJira -AllowClobber -Force
-environment:
   NugetApiKey:
     secure: r7cE4GhlpOQ85VBbSU2eSeRjYGfPFDZrq5YFOaE8erDtktb8lb17m2yj7IOgH7zJ
 build: off
