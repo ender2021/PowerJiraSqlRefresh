@@ -48,7 +48,10 @@ function Resolve-Module
 # Grab nuget bits, install modules, set build variables, start build.
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Resolve-Module Psake, PSDeploy, Pester, BuildHelpers, SqlServer, PowerJira
+Resolve-Module Psake, PSDeploy, Pester, BuildHelpers, PowerJira
+
+Install-Module -Name SqlServer -RequiredVersion 21.1.18147 -AllowClobber
+Import-Module SqlServer -Force
 
 Set-BuildEnvironment
 
