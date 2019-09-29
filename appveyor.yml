@@ -1,4 +1,5 @@
 version: 0.0.{build}
+environment:
   NugetApiKey:
     secure: r7cE4GhlpOQ85VBbSU2eSeRjYGfPFDZrq5YFOaE8erDtktb8lb17m2yj7IOgH7zJ
 build: off
