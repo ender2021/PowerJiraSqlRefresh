@@ -28,6 +28,7 @@ function Update-JiraSql {
     )
     
     begin {
+        Write-Verbose "Beginning Jira data update on $SqlInstance in database $SqlDatabase"
         ####################################################
         #  CONFIGURATION                                   #
         ####################################################
@@ -43,12 +44,10 @@ function Update-JiraSql {
         ####################################################
 
         if ($RefreshType -eq $RefreshTypes.Full) {
-            Write-Verbose "Clearing database..."
             Clear-JiraRefresh @sqlSplat
             $lastRefreshStamp = 0
             $lastRefreshDate = (Get-Date '1970-01-01')
         } else {
-            Write-Verbose "Reading previous batch info..."
             $lastRefresh = Get-LastJiraRefresh @sqlSplat
             $lastRefreshStamp = $lastRefresh.Refresh_Start_Unix
             $lastRefreshDate = $lastRefresh.Refresh_Start
@@ -58,7 +57,6 @@ function Update-JiraSql {
         #  BEGIN THE REFRESH BATCH                         #
         ####################################################
 
-        Write-Verbose "Beginning batch..."
         Clear-JiraStaging @sqlSplat
         $refreshId = Start-JiraRefresh -RefreshType $RefreshType @sqlSplat
     }
@@ -67,8 +65,6 @@ function Update-JiraSql {
         ####################################################
         #  REFRESH STEP 0 - CONFIGURE                      #
         ####################################################
-
-        Write-Verbose "Beginning data staging..."
 
         # define a convenient hash for splatting the basic refresh arguments
         $refreshSplat = @{
@@ -146,7 +142,6 @@ function Update-JiraSql {
         #  REFRESH STEP 6 - SYNC STAGING TO LIVE TABLES    #
         ####################################################
 
-        Write-Verbose "Synchronizing staging to live tables..."
         Sync-JiraStaging -SyncDeleted ($RefreshType -eq $RefreshTypes.Differential) @sqlSplat
     }
     
@@ -155,9 +150,8 @@ function Update-JiraSql {
         #  RECORD BATCH END                                #
         ####################################################
 
-        Write-Verbose "Recording batch end..."
         Stop-JiraRefresh @refreshSplat
 
-        Write-Verbose "Batch completed!"
+        Write-Verbose "Jira update completed!"
     }
 }

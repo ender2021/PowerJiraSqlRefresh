@@ -28,7 +28,7 @@ function Update-JiraWorklogs {
     )
     
     begin {
-        Write-Verbose "Begin Jira Worklog Update"
+        Write-Verbose "Updating Worklogs"
         $tableName = "tbl_stg_Jira_Worklog"
 
         # the jira api adds an extra three digits to the unix timestamp for thousandths of a second
@@ -43,7 +43,7 @@ function Update-JiraWorklogs {
     
     process {
         do {
-            Write-Verbose "Getting Jira Worklogs updated since $since"
+            Write-Verbose "Getting Worklogs updated since $since"
             #get a set of results
             $result = Invoke-JiraGetUpdatedWorklogIds -StartUnixStamp $since
 
@@ -71,8 +71,7 @@ function Update-JiraWorklogs {
     }
     
     end {
-        Write-Verbose "Writing Jira Worklogs to staging table"
+        Write-Verbose "Writing Worklogs to staging table"
         $logs | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Worklogs Update"
     }
 }

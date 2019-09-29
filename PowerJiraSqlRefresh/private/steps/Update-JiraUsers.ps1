@@ -23,19 +23,18 @@ function Update-JiraUsers {
     )
     
     begin {
-        Write-Verbose "Begin Jira User Update"
+        Write-Verbose "Updating Users"
         $tableName = "tbl_stg_Jira_User"
         $users = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Users"
+        Write-Verbose "Getting Users"
         $users += (Invoke-JiraGetAllUsers -MaxResults 1000) | Read-JiraUser -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira User to staging table"
+        Write-Verbose "Writing Users to staging table"
         $users | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira User Update"
     }
 }

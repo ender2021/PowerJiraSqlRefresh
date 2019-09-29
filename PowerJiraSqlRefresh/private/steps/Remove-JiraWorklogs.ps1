@@ -23,7 +23,7 @@ function Remove-JiraWorklogs {
     )
     
     begin {
-        Write-Verbose "Begin Jira Worklog Delete"
+        Write-Verbose "Getting deleted Worklogs"
         $tableName = "tbl_stg_Jira_Worklog_Delete"
 
         # the jira api adds an extra three digits to the unix timestamp for thousandths of a second
@@ -37,7 +37,7 @@ function Remove-JiraWorklogs {
     
     process {
         do {
-            Write-Verbose "Getting Jira Worklogs deleted since $since"
+            Write-Verbose "Getting Worklogs deleted since $since"
             #get a set of results
             $result = Invoke-JiraGetDeletedWorklogIds -StartUnixStamp $since
 
@@ -61,8 +61,7 @@ function Remove-JiraWorklogs {
     }
     
     end {
-        Write-Verbose "Writing Jira Worklog Deletes to staging table"
+        Write-Verbose "Writing Worklog deletes to staging table"
         $idList | ForEach-Object { [PSCustomObject]@{ Worklog_Id = [int]$_ } } | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Worklogs Delete"
     }
 }

@@ -23,19 +23,18 @@ function Update-JiraProjectCategories {
     )
     
     begin {
-        Write-Verbose "Begin Jira Project Category Update"
+        Write-Verbose "Updating Project Categories"
         $tableName = "tbl_stg_Jira_Project_Category"
         $categories = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Project Categories"
+        Write-Verbose "Getting Project Categories"
         $categories += (Invoke-JiraGetAllProjectCategories) | Read-JiraProjectCategory -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Project Categories to staging table"
+        Write-Verbose "Writing Project Categories to staging table"
         $categories | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Project Category Update"
     }
 }

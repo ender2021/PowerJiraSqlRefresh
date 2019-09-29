@@ -18,6 +18,7 @@ function Sync-JiraStaging {
     )
     
     begin {
+        Write-Verbose "Synchronizing staging tables to production tables"
     }
     
     process {

@@ -28,19 +28,18 @@ function Update-JiraVersions {
     )
     
     begin {
-        Write-Verbose "Begin Jira Version Update"
+        Write-Verbose "Updating Versions"
         $tableName = "tbl_stg_Jira_Version"
         $versions = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Versions for Project Key $_"
+        Write-Verbose "Getting Versions for Project Key $_"
         $versions += (Invoke-JiraGetProjectVersions $_) | Read-JiraVersion -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Versions to staging table"
+        Write-Verbose "Writing Versions to staging table"
         $versions | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Version Update"
     }
 }

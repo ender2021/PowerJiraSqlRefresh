@@ -28,19 +28,18 @@ function Update-JiraComponents {
     )
     
     begin {
-        Write-Verbose "Begin Jira Component Update"
+        Write-Verbose "Updating Components"
         $tableName = "tbl_stg_Jira_Component"
         $components = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Components for Project Key $_"
+        Write-Verbose "Getting Components for Project Key $_"
         $components += (Invoke-JiraGetProjectComponents $_) | Read-JiraComponent -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Components to staging table"
+        Write-Verbose "Writing Components to staging table"
         $components | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Component Update"
     }
 }

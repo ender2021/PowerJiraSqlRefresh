@@ -13,6 +13,7 @@ function Clear-JiraStaging {
     )
     
     begin {
+        Write-Verbose "Clearing staging data from Jira database"
     }
     
     process {

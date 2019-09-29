@@ -23,7 +23,7 @@ function Update-JiraDeletedIssues {
     )
     
     begin {
-        Write-Verbose "Begin Jira Deleted Issue Update"
+        Write-Verbose "Performing deleted Issue check"
         $table = "tbl_stg_Jira_Issue_All_Id"
         
         #results arrays
@@ -35,10 +35,10 @@ function Update-JiraDeletedIssues {
     }
     
     process {
-        Write-Verbose "Getting All Jira Issue Ids using JQL $Jql"
+        Write-Verbose "Getting all Issue Ids using JQL $Jql"
         do {
             #get results
-            Write-Verbose ("Requesting results $startAt to " + [string]($startAt + 100))
+            Write-Verbose ("Getting Issue results $startAt to " + [string]($startAt + 100))
             $result = Invoke-JiraSearchIssues -Jql $jql -GET -MaxResults 100 -StartAt $startAt -Fields "id"
 
             #if there were results, process them
@@ -59,8 +59,7 @@ function Update-JiraDeletedIssues {
     }
     
     end {
-        Write-Verbose "Writing All Jira Issue Ids to staging table"
+        Write-Verbose "Writing all Issue Ids to staging table"
         $allIssueIds | ForEach-Object { [pscustomobject]@{ Issue_Id = [int]$_ } } | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $table -Force
-        Write-Verbose "End Jira Deleted Issue Update"
     }
 }

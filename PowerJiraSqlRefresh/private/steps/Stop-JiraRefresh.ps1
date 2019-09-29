@@ -18,6 +18,7 @@ function Stop-JiraRefresh {
     )
     
     begin {
+        Write-Verbose "Recording Jira Refresh end (RefreshID: $RefreshId)"
     }
     
     process {

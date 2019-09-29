@@ -23,6 +23,7 @@ function Start-JiraRefresh {
     )
     
     begin {
+        Write-Verbose "Recording Jira Refresh start"
     }
     
     process {

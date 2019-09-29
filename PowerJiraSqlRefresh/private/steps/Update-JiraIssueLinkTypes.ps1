@@ -23,19 +23,18 @@ function Update-JiraIssueLinkTypes {
     )
     
     begin {
-        Write-Verbose "Begin Jira Issue Link Type Update"
+        Write-Verbose "Updating Issue Link Types"
         $tableName = "tbl_stg_Jira_Issue_Link_Type"
         $types = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Issue Link Type"
+        Write-Verbose "Getting Issue Link Types"
         $types += (Invoke-JiraGetIssueLinkTypes) | Read-JiraIssueLinkType -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Issue Link Type to staging table"
+        Write-Verbose "Writing Issue Link Types to staging table"
         $types | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Issue Link Type Update"
     }
 }

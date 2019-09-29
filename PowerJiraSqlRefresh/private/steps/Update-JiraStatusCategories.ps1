@@ -23,19 +23,18 @@ function Update-JiraStatusCategories {
     )
     
     begin {
-        Write-Verbose "Begin Jira Status Category Update"
+        Write-Verbose "Updating Status Categories"
         $tableName = "tbl_stg_Jira_Status_Category"
         $categories = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Status Categories"
+        Write-Verbose "Getting Status Categories"
         $categories += (Invoke-JiraGetAllStatusCategories) | Read-JiraStatusCategory -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Status Categories to staging table"
+        Write-Verbose "Writing Status Categories to staging table"
         $categories | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Status Category Update"
     }
 }

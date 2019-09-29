@@ -13,6 +13,7 @@ function Clear-JiraRefresh {
     )
     
     begin {
+        Write-Verbose "Clearing all refresh data from Jira database"
     }
     
     process {

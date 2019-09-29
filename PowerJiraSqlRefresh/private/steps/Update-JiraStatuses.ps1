@@ -23,19 +23,18 @@ function Update-JiraStatuses {
     )
     
     begin {
-        Write-Verbose "Begin Jira Status Update"
+        Write-Verbose "Updating Statuses"
         $tableName = "tbl_stg_Jira_Status"
         $statuses = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Status"
+        Write-Verbose "Getting Statuses"
         $statuses += (Invoke-JiraGetAllStatuses) | Read-JiraStatus -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Status to staging table"
+        Write-Verbose "Writing Statuses to staging table"
         $statuses | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Status Update"
     }
 }

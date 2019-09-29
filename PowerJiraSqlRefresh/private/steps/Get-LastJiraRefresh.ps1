@@ -13,6 +13,7 @@ function Get-LastJiraRefresh {
     )
     
     begin {
+        Write-Verbose "Getting data for most recent refresh"
     }
     
     process {

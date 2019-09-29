@@ -30,18 +30,18 @@ function Update-JiraProjects {
     )
     
     begin {
-        Write-Verbose "Begin Jira Project Update"
+        Write-Verbose "Updating Projects"
         $tableName = "tbl_stg_Jira_Project"
         $projects = @()
         
         #if no keys were supplied, then get all projects
         if (($null -eq $ProjectKeys) -or ($ProjectKeys.Count -eq 0))
         {
+            Write-Verbose "Getting all Projects"
             $startAt = 0
             $lastPageReached = $false
             do {
-                Write-Verbose "Getting All Jira Projects"
-                
+                Write-Verbose "Getting Project results $startAt to " + [string]($startAt + 50)
                 #get a set of results
                 $result = Invoke-JiraGetProjects -MaxResults 50 -StartAt $startAt -Expand @("description","lead")
     
@@ -69,15 +69,14 @@ function Update-JiraProjects {
     process {
         #if keys were supplied, then we loop through them and get projects
         if ($_) {
-            Write-Verbose "Getting Jira Project for Project Key $_"
+            Write-Verbose "Getting Project for Key $_"
             $projects += Invoke-JiraGetProject $_ | Read-JiraProject -RefreshId $RefreshId
         }
     }
     
     end {
-        Write-Verbose "Writing Jira Projects to staging table"
+        Write-Verbose "Writing Projects to staging table"
         $projects | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Project Update"
         # this function is unique - need to return the objects in order to make sure the project key list for future requests is accurate
         $projects
     }

@@ -23,19 +23,18 @@ function Update-JiraResolutions {
     )
     
     begin {
-        Write-Verbose "Begin Jira Resolution Update"
+        Write-Verbose "Updating Resolutions"
         $tableName = "tbl_stg_Jira_Resolution"
         $resolutions = @()
     }
     
     process {
-        Write-Verbose "Getting Jira Resolution"
+        Write-Verbose "Getting Resolutions"
         $resolutions += (Invoke-JiraGetResolutions) | Read-JiraResolution -RefreshId $RefreshId
     }
     
     end {
-        Write-Verbose "Writing Jira Resolution to staging table"
+        Write-Verbose "Writing Resolutions to staging table"
         $resolutions | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
-        Write-Verbose "End Jira Resolution Update"
     }
 }
