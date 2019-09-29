@@ -34,9 +34,7 @@ Task Test -Depends Init  {
     $lines
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
-    Install-Module PowerJira
     Import-Module PowerJira
-    Install-Module SqlServer -RequiredVersion 21.1.18147
     Import-Module SqlServer
     Import-Module $ProjectRoot\PowerJiraSqlRefresh\PowerJiraSqlRefresh.psm1
     $privateFiles = Get-ChildItem -Path $ProjectRoot\PowerJiraSqlRefresh\private -Recurse -Include *.ps1 -ErrorAction SilentlyContinue
