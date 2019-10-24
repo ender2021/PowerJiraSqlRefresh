@@ -41,7 +41,7 @@ function Update-JiraProjects {
             $startAt = 0
             $lastPageReached = $false
             do {
-                Write-Verbose "Getting Project results $startAt to " + [string]($startAt + 50)
+                Write-Verbose ("Getting Project results $startAt to " + [string]($startAt + 50))
                 #get a set of results
                 $result = Invoke-JiraGetProjects -MaxResults 50 -StartAt $startAt -Expand @("description","lead")
     
