@@ -44,13 +44,15 @@ function Update-JiraDeletedIssues {
             #if there were results, process them
             if ($result.issues.Count -ne 0) {
                 $allIssueIds += $result.issues | Where-Object { $allIssueIds -notcontains $_.id } | ForEach-Object { [int]$_.id }
+            } else {
+                $lastPageReached = $true
             }
         
             #iterate the start counter
             $startAt += $result.issues.Count
 
             #check to see if we're at the end
-            if ($allIssueIds.Count -eq $result.total) {
+            if ($allIssueIds.Count -ge $result.total) {
                 $lastPageReached = $true
             }
 
