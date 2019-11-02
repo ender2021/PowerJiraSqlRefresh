@@ -14,6 +14,10 @@
     Supply this parameter in order to limit the refresh to a specified set of projects.
     Without this parameter, the method will update all projects
 
+.PARAMETER Obfuscate
+    Supply this parameter to obfuscate issue information in sensitive projects
+    Issue Summary and Description will be replaced the with the string [Obfuscated]
+
 .PARAMETER SqlInstance
 	The connection string for the SQL instance where the data will be updated
 
@@ -46,21 +50,27 @@ function Update-JiraSql {
     param (
         # Refresh type
         [Parameter(Mandatory, Position=0)]
+        [ValidateSet("F","D")]
         [string]
         $RefreshType,
 
-        # Project keys
+        # Keys of specific projects to pull
         [Parameter(Position=1)]
         [string[]]
         $ProjectKeys,
 
+        # Keys of projects to be obfuscated
+        [Parameter(Position=2)]
+        [string[]]
+        $Obfuscate,
+
         # The sql instance to update data in
-        [Parameter(Mandatory,Position=2)]
+        [Parameter(Mandatory,Position=3)]
         [string]
         $SqlInstance,
 
         # The sql database to update data in
-        [Parameter(Mandatory,Position=3)]
+        [Parameter(Mandatory,Position=4)]
         [string]
         $SqlDatabase
     )
@@ -80,6 +90,8 @@ function Update-JiraSql {
         ####################################################
         #  GET PREVIOUS BATCH INFO / CLEAR PREVIOUS BATCH  #
         ####################################################
+
+        $RefreshTypes = Get-JiraRefreshTypes
 
         if ($RefreshType -eq $RefreshTypes.Full) {
             Clear-JiraRefresh @sqlSplat
@@ -164,7 +176,7 @@ function Update-JiraSql {
         }
 
         # update issues with the crafted JQL
-        Update-JiraIssues -Jql ($updateJql + $projectJql) @refreshSplat
+        Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate @refreshSplat
 
         #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
         if ($RefreshType -eq (Get-JiraRefreshTypes).Differential) {

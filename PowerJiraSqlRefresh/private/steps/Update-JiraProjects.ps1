@@ -68,9 +68,11 @@ function Update-JiraProjects {
     
     process {
         #if keys were supplied, then we loop through them and get projects
-        if ($_) {
-            Write-Verbose "Getting Project for Key $_"
-            $projects += Invoke-JiraGetProject $_ | Read-JiraProject -RefreshId $RefreshId
+        if ($ProjectKeys -and $ProjectKeys.Count -gt 0) {
+            foreach($key in $ProjectKeys) {
+                Write-Verbose "Getting Project for Key $key"
+                $projects += Invoke-JiraGetProject $key | Read-JiraProject -RefreshId $RefreshId
+            }
         }
     }
     

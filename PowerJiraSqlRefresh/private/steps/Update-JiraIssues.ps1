@@ -6,23 +6,28 @@ function Update-JiraIssues {
         [string]
         $Jql,
 
+        # Keys of projects to be obfuscated
+        [Parameter(Position=1)]
+        [string[]]
+        $Obfuscate,
+
         # The ID value of the refresh underway
-        [Parameter(Mandatory,Position=1)]
+        [Parameter(Mandatory,Position=2)]
         [int]
         $RefreshId,
 
         # The sql instance to update data in
-        [Parameter(Mandatory,Position=2)]
+        [Parameter(Mandatory,Position=3)]
         [string]
         $SqlInstance,
 
         # The sql database to update data in
-        [Parameter(Mandatory,Position=3)]
+        [Parameter(Mandatory,Position=4)]
         [string]
         $SqlDatabase,
 
         # The schema to use when updating data
-        [Parameter(Position=4)]
+        [Parameter(Position=5)]
         [string]
         $SchemaName="dbo"
     )
@@ -73,7 +78,8 @@ function Update-JiraIssues {
                     $issue = $_
                     $issueId = $issue.id
                     $fields = $issue.fields
-                    
+                    $issueProjectKey = $fields.project.key
+
                     # create and keep issue component mappings
                     if ($fields.components -and $fields.components.Count -gt 0) {
                         $issueComponents += $fields.components | ForEach-Object { $_.id } | Read-JiraIssueComponent -IssueId $issueId -RefreshId $refreshId
@@ -126,7 +132,12 @@ function Update-JiraIssues {
                     }
         
                     # create and return issue object
-                    Read-JiraIssue -Data $issue -RefreshId $refreshId
+                    $readSplat = @{
+                        Data = $issue
+                        RefreshId = $refreshId
+                        Obfuscate = $Obfuscate -contains $issueProjectKey
+                    }
+                    Read-JiraIssue @readSplat
                 }
             }
         

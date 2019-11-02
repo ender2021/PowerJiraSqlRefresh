@@ -9,10 +9,16 @@ function Read-JiraIssue {
         # Refresh ID
         [Parameter(Mandatory,Position=1)]
         [int]
-        $RefreshId
+        $RefreshId,
+
+        # Set this flag to obfuscate the summary and description of the issue
+        [Parameter()]
+        [switch]
+        $Obfuscate
     )
     
     begin {
+        $obfuscateString = "[Obfuscated]"
     }
     
     process {
@@ -31,9 +37,9 @@ function Read-JiraIssue {
             Aggregate_Time_Original_Estimate = $Data.fields.aggregateTimeOriginalEstimate
             Updated_Date = $Data.fields.updated
             Time_Original_Estimate = $Data.fields.timeOriginalEstimate
-            Description = $Data.fields.description
+            Description = if ($Obfuscate) { $obfuscateString } else { $Data.fields.description}
             Aggregate_Time_Estimate = $Data.fields.aggregateTimeEstimate
-            Summary = $Data.fields.summary
+            Summary = if ($Obfuscate) { $obfuscateString } else { $Data.fields.summary }
             Due_Date = $Data.fields.dueDate
             Flagged = if($Data.fields.customfield_10302) {$true} else {$false}
             External_Reporter_Name = $Data.fields.customfield_10303
