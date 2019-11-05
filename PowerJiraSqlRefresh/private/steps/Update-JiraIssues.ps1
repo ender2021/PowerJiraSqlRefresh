@@ -139,6 +139,8 @@ function Update-JiraIssues {
                     }
                     Read-JiraIssue @readSplat
                 }
+            } else {
+                $lastPageReached = $true
             }
         
             #iterate the start counter
