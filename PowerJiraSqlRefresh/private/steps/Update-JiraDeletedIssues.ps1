@@ -28,6 +28,7 @@ function Update-JiraDeletedIssues {
         
         #results arrays
         $allIssueIds = @()
+        $fatalError = $false
 
         #looping variables
         $startAt = 0
@@ -39,20 +40,27 @@ function Update-JiraDeletedIssues {
         do {
             #get results
             Write-Verbose ("Getting Issue results $startAt to " + [string]($startAt + 100))
-            $result = Invoke-JiraSearchIssues -Jql $jql -GET -MaxResults 100 -StartAt $startAt -Fields "id"
+            try {
+                $result = Invoke-JiraSearchIssues -Jql $jql -GET -MaxResults 100 -StartAt $startAt -Fields "id" -ErrorAction "Stop"
 
-            #if there were results, process them
-            if ($result.issues.Count -ne 0) {
-                $allIssueIds += $result.issues | Where-Object { $allIssueIds -notcontains $_.id } | ForEach-Object { [int]$_.id }
-            } else {
-                $lastPageReached = $true
-            }
-        
-            #iterate the start counter
-            $startAt += $result.issues.Count
+                #if there were results, process them
+                if ($result.issues.Count -ne 0) {
+                    $allIssueIds += $result.issues | Where-Object { $allIssueIds -notcontains $_.id } | ForEach-Object { [int]$_.id }
+                } else {
+                    $lastPageReached = $true
+                }
+            
+                #iterate the start counter
+                $startAt += $result.issues.Count
 
-            #check to see if we're at the end
-            if ($allIssueIds.Count -ge $result.total) {
+                #check to see if we're at the end
+                if ($allIssueIds.Count -ge $result.total) {
+                    $lastPageReached = $true
+                }
+            } catch [System.Exception] {
+                #don't terminate the powershell process, but don't proceed with the delete synchronization
+                Write-Error "Fatal Error: deleted issue synchronization will not complete."
+                $fatalError = $true
                 $lastPageReached = $true
             }
 
@@ -61,7 +69,13 @@ function Update-JiraDeletedIssues {
     }
     
     end {
-        Write-Verbose "Writing all Issue Ids to staging table"
-        $allIssueIds | ForEach-Object { [pscustomobject]@{ Issue_Id = [int]$_ } } | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $table -Force
+        if (!$fatalError) {
+            Write-Verbose "Writing all Issue Ids to staging table"
+            $allIssueIds | ForEach-Object { [pscustomobject]@{ Issue_Id = [int]$_ } } | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $table -Force
+            return $true
+        } else {
+            Write-Verbose "Skipping delete synchronization step"
+            return $false
+        }
     }
 }

@@ -179,9 +179,10 @@ function Update-JiraSql {
         Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate @refreshSplat
 
         #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
+        $deleteRetrieveSuccess = $false
         if ($RefreshType -eq (Get-JiraRefreshTypes).Differential) {
             # use the project list if we're doing a list, otherwise use a "true = true" type clause to get everything
-            if ($null -eq $ProjectKeys) {
+            $deleteRetrieveSuccess = if ($null -eq $ProjectKeys) {
                 Update-JiraDeletedIssues -Jql "project is not EMPTY" @sqlSplat
             } else {
                 Update-JiraDeletedIssues -Jql $projectJql @sqlSplat
@@ -192,7 +193,11 @@ function Update-JiraSql {
         #  REFRESH STEP 6 - SYNC STAGING TO LIVE TABLES    #
         ####################################################
 
-        Sync-JiraStaging -SyncDeleted ($RefreshType -eq $RefreshTypes.Differential) @sqlSplat
+        #determine if deletes should be synced
+        $syncDelete = $deleteRetrieveSuccess -and ($RefreshType -eq $RefreshTypes.Differential)
+
+        #perform the sync
+        Sync-JiraStaging -SyncDeleted $syncDelete @sqlSplat
     }
     
     end {
