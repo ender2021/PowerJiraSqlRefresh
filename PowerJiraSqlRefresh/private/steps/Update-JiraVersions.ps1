@@ -35,7 +35,8 @@ function Update-JiraVersions {
     
     process {
         Write-Verbose "Getting Versions for Project Key $_"
-        $versions += (Invoke-JiraGetProjectVersions $_) | Read-JiraVersion -RefreshId $RefreshId
+        $result = Invoke-JiraGetProjectVersions $_
+        $versions += Read-JiraVersion -Data $result -RefreshId $RefreshId
     }
     
     end {
