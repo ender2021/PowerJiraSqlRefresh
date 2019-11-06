@@ -34,9 +34,10 @@ function Update-JiraComponents {
     }
     
     process {
-        Write-Verbose "Getting Components for Project Key $_"
-        $result = Invoke-JiraGetProjectComponents $_
-        $components +=  Read-JiraComponent -Data $result -RefreshId $RefreshId
+        foreach($key in $ProjectKeys){
+            Write-Verbose "Getting Components for Project Key $key"
+            $components += Invoke-JiraGetProjectComponents $key | Read-JiraComponent -RefreshId $RefreshId
+        }
     }
     
     end {

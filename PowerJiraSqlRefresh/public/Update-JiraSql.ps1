@@ -146,8 +146,8 @@ function Update-JiraSql {
         ####################################################
 
         # next do the updates where the only context is the list of projects
-        $refreshProjectKeys | Update-JiraVersions @refreshSplat
-        $refreshProjectKeys | Update-JiraComponents @refreshSplat
+        Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat
+        Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat
 
         ####################################################
         #  REFRESH STEP 4 - WORKLOGS                       #
