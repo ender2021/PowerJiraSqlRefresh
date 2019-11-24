@@ -31,37 +31,29 @@ Task Init {
 }
 
 Task Test -Depends Init  {
-    # JRM 2019-09-28 - REMOVING TESTING FOR NOW
+    $lines
+    "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
-    # $lines
-    # "`n`tSTATUS: Testing with PowerShell $PSVersion"
+    # Gather test results. Store them in a variable and file
+    $TestResults = Invoke-Pester -Path $ProjectRoot\tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile"
 
-    # Import-Module PowerJira
-    # Import-Module SqlServer
-    # Import-Module $ProjectRoot\PowerJiraSqlRefresh\PowerJiraSqlRefresh.psm1
-    # $privateFiles = Get-ChildItem -Path $ProjectRoot\PowerJiraSqlRefresh\private -Recurse -Include *.ps1 -ErrorAction SilentlyContinue
-    # if(@($privateFiles).Count -gt 0) { $privateFiles.FullName | ForEach-Object { . $_ } }
+    # In Appveyor?  Upload our tests! #Abstract this into a function?
+    If($ENV:BHBuildSystem -eq 'AppVeyor')
+    {
+        (New-Object 'System.Net.WebClient').UploadFile(
+            "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
+            "$ProjectRoot\$TestFile" )
+    }
 
-    # # Gather test results. Store them in a variable and file
-    # $TestResults = Invoke-Pester -Path $ProjectRoot\tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile"
+    Remove-Item "$ProjectRoot\$TestFile" -Force -ErrorAction SilentlyContinue
 
-    # # In Appveyor?  Upload our tests! #Abstract this into a function?
-    # If($ENV:BHBuildSystem -eq 'AppVeyor')
-    # {
-    #     (New-Object 'System.Net.WebClient').UploadFile(
-    #         "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
-    #         "$ProjectRoot\$TestFile" )
-    # }
-
-    # Remove-Item "$ProjectRoot\$TestFile" -Force -ErrorAction SilentlyContinue
-
-    # # Failed tests?
-    # # Need to tell psake or it will proceed to the deployment. Danger!
-    # if($TestResults.FailedCount -gt 0)
-    # {
-    #     Write-Error "Failed '$($TestResults.FailedCount)' tests, build failed"
-    # }
-    # "`n"
+    # Failed tests?
+    # Need to tell psake or it will proceed to the deployment. Danger!
+    if($TestResults.FailedCount -gt 0)
+    {
+        Write-Error "Failed '$($TestResults.FailedCount)' tests, build failed"
+    }
+    "`n"
 }
 
 Task Build -Depends Test {
