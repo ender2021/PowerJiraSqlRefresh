@@ -32,7 +32,7 @@ Step 2: Install database objects with PowerShell
 ```powershell
 Import-Module PowerJiraSqlExecute
 
-Install-JiraDatabase -SqlInstance localhost -SqlDatabase Jira -Username "DOMAIN\MyUserName"
+Install-JiraDatabase -SqlInstance localhost -SqlDatabase Jira -Username "DOMAIN\YourUserName"
 ```
 
 Step 2 (alternate): Install database objects manually
