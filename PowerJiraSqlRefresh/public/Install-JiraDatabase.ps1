@@ -13,21 +13,15 @@
 .PARAMETER SqlDatabase
 	The name of the database to install the Jira objects and data in
 
-.PARAMETER Username
-    The username of the account that will be executing the module
-    
-.PARAMETER CreateUser
-    Set this switch to create the user in the database before adding it to the JiraRefreshRole
-
 .EXAMPLE
-	Install-JiraDatabase -SqlInstance localhost -SqlDatabase Jira -Username "DOMAIN\MyJiraUser"
+	Install-JiraDatabase -SqlInstance localhost -SqlDatabase Jira
 
 	Installs objects and data on the local machine in a database called "Jira"
 
 .EXAMPLE
-	Install-JiraDatabase -SqlInstance "my.remote.sql.server,1234" -SqlDatabase Jira -Username "DOMAIN\MyJiraUser" -CreateUser
+	Install-JiraDatabase -SqlInstance "my.remote.sql.server,1234" -SqlDatabase Jira
 
-	Installs objects and data on a remote Sql Server in a database called "Jira", and creates the user in the database
+	Installs objects and data on a remote Sql Server in a database called "Jira"
 #>
 function Install-JiraDatabase {
     [CmdletBinding()]
@@ -40,17 +34,7 @@ function Install-JiraDatabase {
         # The name of the install sql database
         [Parameter(Mandatory,Position=1)]
         [string]
-        $SqlDatabase,
-
-        # The user that will execute the Jira Refresh
-        [Parameter(Mandatory,Position=2)]
-        [string]
-        $Username,
-
-        # Set this switch to create the user in the database before adding it to the role
-        [Parameter()]
-        [switch]
-        $CreateUser
+        $SqlDatabase
     )
     
     begin {
@@ -60,14 +44,6 @@ function Install-JiraDatabase {
     process {
         Write-Verbose "Creating database objects"
         $objectsResult = Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -InputFile $global:PowerJiraSqlRefresh.SqlObjectsPath
-
-        if ($CreateUser) {
-            Write-Verbose "Creating user $Username"
-            $createUserResult = Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "CREATE USER [$Username]"
-        }
-
-        Write-Verbose "Adding user $Username to JiraRefreshRole role"
-        $addUserResult = Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -Query "ALTER ROLE [JiraRefreshRole] ADD MEMBER [$Username]"
 
         Write-Verbose "Creating lookup table data"
         $lookupResult = Invoke-SqlCmd -ServerInstance $SqlInstance -Database $SqlDatabase -InputFile $global:PowerJiraSqlRefresh.SqlLookupsPath
