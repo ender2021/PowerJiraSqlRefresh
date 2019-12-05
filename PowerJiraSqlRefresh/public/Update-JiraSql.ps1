@@ -169,7 +169,7 @@ function Update-JiraSql {
         $updateJql = "updatedDate >= '$jqlUpdateDate'"
 
         # if we're refreshing a specific list of projects, create the clause; otherwise, don't add a project clause
-        $projectJql = if($getAll) {
+        $projectJql = if($null -eq $ProjectKeys -or $ProjectKeys.Count -eq 0) {
             ""
         } else {
             " AND Project in (" + ($refreshProjectKeys -join ",") + ")"
