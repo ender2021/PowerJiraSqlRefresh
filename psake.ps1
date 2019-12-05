@@ -29,7 +29,6 @@ Task Init {
     Get-Item ENV:BH*
     "`n"
     Remove-Module PowerShellGet -Force
-    Uninstall-Module PowerShellGet -Force
     Install-Module PowerShellGet -RequiredVersion "2.1.2" -Force
     Import-Module PowerShellGet -RequiredVersion "2.1.2" -Force
     "Modules:"
