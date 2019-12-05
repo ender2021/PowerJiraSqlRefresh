@@ -1,4 +1,5 @@
 version: 0.0.{build}
+image: Visual Studio 2019
 environment:
   NugetApiKey:
     secure: JgK2cd5E+VAhFpQTTB8zT8H5hlC8jGSBk3F4Bn7jn4f6qVA5aH0yuMNbUppvJTt8
