@@ -28,6 +28,7 @@ Task Init {
     "Build System Details:"
     Get-Item ENV:BH*
     "`n"
+    Remove-Module PowerShellGet
     Install-Module PowerShellGet -RequiredVersion "2.1.2" -Force
     Import-Module PowerShellGet -RequiredVersion "2.1.2" -Force
     "Modules:"
