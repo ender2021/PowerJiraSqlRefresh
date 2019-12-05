@@ -28,6 +28,9 @@ Task Init {
     "Build System Details:"
     Get-Item ENV:BH*
     "`n"
+    "Modules:"
+    Get-Module -ListAvailable
+    "`n"
 }
 
 Task Test -Depends Init  {
