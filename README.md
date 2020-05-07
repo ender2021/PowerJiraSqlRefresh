@@ -80,6 +80,40 @@ Update-JiraSql @parameters
 Close-JiraSession
 ```
 
+### Feature Configuration
+
+PowerJiraSqlRefresh provides a handful of configuration options which can be supplied by the user at invocation.
+
+#### Refresh Type
+
+The module provides two refresh modes, Full and Differential.  When a Full refresh is performed, the database will be cleared of all extracted Jira data and the module will retrieve all instance data.  A Differential refresh will retrieve only the deltas since the last time the refresh process was executed.  Note that some tables will be fully updated, even in a Differential refresh, as the Jira Cloud REST API does not provide change tracking on all object types.
+
+##### Differentially Refreshed Elements
+
+These data elements can be refreshed differentially:
+
+* Issues (Add/Update)
+* Worklogs
+
+##### Fully Refreshed Elements
+
+These data elements are always fully refreshed, even during a Differential refresh:
+
+* Projects
+     * Versions
+     * Components
+* Project Categories
+* Statuses
+* Status Categories
+* Resolutions
+* Priorities
+* Issue Link Types
+* Users
+
+#### Issue Obfuscation
+
+Because data is retrieved from the Jira instance and stored in a SQL database, all data that is visible to the Jira user configured for the refresh process will  subsequently be visible to those who have access to the SQL database.  Recognizing that this may unintentionally expose sensitve information that has been secured in Jira by permissions, PowerJiraSqlRefresh provides an option to obfuscate ticket contents in specified Jira projects.  One or more project keys can be provided at execution time; issues within those projects will have their Summary and Description field contents replaced with the string `[Redacted]`
+
 ## Authors
 
 * **Justin Mead** - [ender2021](https://github.com/ender2021)
