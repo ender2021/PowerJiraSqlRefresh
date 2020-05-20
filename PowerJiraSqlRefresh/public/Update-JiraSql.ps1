@@ -24,6 +24,10 @@
 .PARAMETER SqlDatabase
     The name of the database to perform updates in
     
+.PARAMETER SyncDeployments
+    Use this switch to sync deployment information from third-party providers.
+    https://developer.atlassian.com/cloud/jira/software/modules/deployment/
+    
 .EXAMPLE
     Open-JiraSession @jiraConnectionDetails
 	Update-Jira -RefreshType (Get-JiraRefreshTypes).Full -SqlInstance localhost -SqlDatabase Jira
@@ -72,7 +76,12 @@ function Update-JiraSql {
         # The sql database to update data in
         [Parameter(Mandatory,Position=4)]
         [string]
-        $SqlDatabase
+        $SqlDatabase,
+
+        # Whether to sync deployments
+        [Parameter()]
+        [switch]
+        $SyncDeployments
     )
     
     begin {
@@ -176,7 +185,7 @@ function Update-JiraSql {
         }
 
         # update issues with the crafted JQL
-        Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate @refreshSplat
+        Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate -SyncDeployments:$SyncDeployments @refreshSplat
 
         #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
         $deleteRetrieveSuccess = $false
