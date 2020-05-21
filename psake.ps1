@@ -28,11 +28,9 @@ Task Init {
     "Build System Details:"
     Get-Item ENV:BH*
     "`n"
-    Remove-Module PowerShellGet -Force
-    Install-Module PowerShellGet -RequiredVersion "2.1.2" -Force
-    Import-Module PowerShellGet -RequiredVersion "2.1.2" -Force
-    "Modules:"
-    Get-Module -ListAvailable
+
+    $mod = Get-Module PowerShellGet
+    "PowerShellGet Version: " + $mod.Version
     "`n"
 }
 
@@ -41,7 +39,7 @@ Task Test -Depends Init  {
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
     # Gather test results. Store them in a variable and file
-    $TestResults = Invoke-Pester -Path $ProjectRoot\tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile"
+    $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile"
 
     # In Appveyor?  Upload our tests! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')
@@ -64,17 +62,21 @@ Task Test -Depends Init  {
 
 Task Build -Depends Test {
     $lines
-    #Set-ModuleFunctions
+    
+    # Load the module, read the exported functions, update the psd1 FunctionsToExport
+    Set-ModuleFunctions
+
+    # Bump the module version
+    #Update-Metadata -Path $env:BHPSModuleManifest
 }
 
 Task Deploy -Depends Build {
     $lines
 
     $Params = @{
-        Path = $ProjectRoot
+        Path = "$ProjectRoot"
         Force = $true
         Recurse = $false # We keep psdeploy artifacts, avoid deploying those : )
     }
     Invoke-PSDeploy @Verbose @Params
-
 }
