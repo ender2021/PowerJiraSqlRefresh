@@ -157,8 +157,14 @@ function Update-JiraIssues {
                             $environmentList = $deployments | Where-Object { $_ } | Read-JiraDeploymentEnvironment -RefreshId $RefreshId
 
                             #add new ones to the master list
-                            $currEnvironmentIds = $allEnvironments | ForEach-Object { $_.Environment_Id }
-                            $allEnvironments += $environmentList | Where-Object { $currEnvironmentIds -notcontains $_.Environment_Id }
+                            $currEnvironmentIds = @()
+                            $currEnvironmentIds += $allEnvironments | ForEach-Object { $_.Environment_Id }
+                            $environmentList | ForEach-Object {
+                                if ($currEnvironmentIds -notcontains $_.Environment_Id) {
+                                    $allEnvironments += $_
+                                    $currEnvironmentIds += $_.Environment_Id
+                                }
+                            }
 
                             #add to the list of issue deployment mappings
                             $issueDeployments += $deploymentList | ForEach-Object { $_.Deployment_Url } | Read-JiraIssueDeployment -IssueId $issueId -RefreshId $refreshId
