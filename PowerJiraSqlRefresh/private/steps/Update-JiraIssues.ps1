@@ -29,24 +29,34 @@ function Update-JiraIssues {
         # The schema to use when updating data
         [Parameter(Position=5)]
         [string]
-        $SchemaName="dbo"
+        $SchemaName="dbo",
+
+        # Whether to sync deployments
+        [Parameter()]
+        [switch]
+        $SyncDeployments
     )
     
     begin {
         Write-Verbose "Updating Issues"
         $issueTable = "tbl_stg_Jira_Issue"
         $sprintTable = "tbl_stg_Jira_Sprint"
+        $deploymentTable = "tbl_stg_Jira_Deployment"
+        $environmentTable = "tbl_stg_Jira_Deployment_Environment"
         $issueTypeTable = "tbl_stg_Jira_Issue_Type"
         $issueSprintTable = "tbl_stg_Jira_Issue_Sprint"
         $issueComponentTable = "tbl_stg_Jira_Issue_Component"
         $issueFixVersionTable = "tbl_stg_Jira_Issue_Fix_Version"
         $issueLabelTable = "tbl_stg_Jira_Issue_Label"
         $issueLinkTable = "tbl_stg_Jira_Issue_Link"
+        $issueDeploymentTable = "tbl_stg_Jira_Issue_Deployment"
         
         #results arrays
         $allIssues = @()
         $allIssueTypes = @()
         $allSprints = @()
+        $allDeployments = @()
+        $allEnvironments = @()
 
         # arrays to hold one to many relationship information
         $issueSprints = @()
@@ -54,6 +64,7 @@ function Update-JiraIssues {
         $issueFixVersions = @()
         $issueLabels = @()
         $issueLinks = @()
+        $issueDeployments = @()
 
         #looping variables
         $startAt = 0
@@ -130,6 +141,29 @@ function Update-JiraIssues {
                         #add to the list of issue sprint mappings
                         $issueSprints += $sprintList | ForEach-Object { [int]$_.Sprint_Id } | Read-JiraIssueSprint -IssueId $issueId -RefreshId $refreshId
                     }
+
+                    if ($SyncDeployments) {
+                        # create and keep deployment information
+                        $deployments = Invoke-JiraGetDeployments -Id $issueId
+                        if ($deployments -and $deployments.Count -gt 0) {
+                            #parse deployments
+                            $deploymentList = $deployments | Where-Object { $_ } | Read-JiraDeployment -RefreshId $RefreshId
+
+                            #add new ones to the master list
+                            $currDeploymentUrls = $allDeployments | ForEach-Object { $_.Deployment_Url}
+                            $allDeployments += $deploymentList | Where-Object { $currDeploymentUrls -notcontains $_.Deployment_Url }
+
+                            #parse environments
+                            $environmentList = $deployments | Where-Object { $_ } | Read-JiraDeploymentEnvironment -RefreshId $RefreshId
+
+                            #add new ones to the master list
+                            $currEnvironmentIds = $allEnvironments | ForEach-Object { $_.Environment_Id }
+                            $allEnvironments += $environmentList | Where-Object { $currEnvironmentIds -notcontains $_.Environment_Id }
+
+                            #add to the list of issue deployment mappings
+                            $issueDeployments += $deploymentList | ForEach-Object { $_.Deployment_Url } | Read-JiraIssueDeployment -IssueId $issueId -RefreshId $refreshId
+                        }
+                    }
         
                     # create and return issue object
                     $readSplat = @{
@@ -162,6 +196,12 @@ function Update-JiraIssues {
         Write-Verbose "Writing Sprints to staging table"
         $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
 
+        Write-Verbose "Writing Deployments to staging table"
+        $allDeployments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $deploymentTable
+
+        Write-Verbose "Writing Deployment Environments to staging table"
+        $allEnvironments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $environmentTable
+
         Write-Verbose "Writing Issues to staging table"
         $allIssues | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $issueTable
         
@@ -179,5 +219,8 @@ function Update-JiraIssues {
 
         Write-Verbose "Writing Issue-Version Mappings to staging table"
         $issueFixVersions | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueFixVersionTable
+
+        Write-Verbose "Writing Issue-Deployments Mappings to staging table"
+        $issueDeployments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueDeploymentTable
     }
 }
