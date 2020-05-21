@@ -78,10 +78,10 @@ function Update-JiraSql {
         [string]
         $SqlDatabase,
 
-        # Whether to sync deployments
+        # Synchronization options to override the defaults
         [Parameter()]
-        [switch]
-        $SyncDeployments
+        [hashtable]
+        $SyncOptions
     )
     
     begin {
@@ -94,6 +94,12 @@ function Update-JiraSql {
         $sqlSplat = @{
             SqlInstance = $SqlInstance
             SqlDatabase = $SqlDatabase
+        }
+
+        #setup the sync options
+        $options = Get-DefaultSyncOptions
+        if ($SyncOptions) {
+            $options = Merge-Hashtable -Source $SyncOptions -Target $options
         }
 
         ####################################################
@@ -135,68 +141,87 @@ function Update-JiraSql {
         ####################################################
 
         # these are mostly lookup tables
-        Update-JiraProjectCategories @refreshSplat
-        Update-JiraStatusCategories @refreshSplat
-        Update-JiraStatuses @refreshSplat
-        Update-JiraResolutions @refreshSplat
-        Update-JiraPriorities @refreshSplat
-        Update-JiraIssueLinkTypes @refreshSplat
-        Update-JiraUsers @refreshSplat
+        if ($options.ProjectCategories) { Update-JiraProjectCategories @refreshSplat } else { Write-Verbose "Skipping Project Categories" }
+        if ($options.StatusCategories) { Update-JiraStatusCategories @refreshSplat } else { Write-Verbose "Skipping Status Categories" }
+        if ($options.Statuses) { Update-JiraStatuses @refreshSplat } else { Write-Verbose "Skipping Statuses" }
+        if ($options.Resolutions) { Update-JiraResolutions @refreshSplat } else { Write-Verbose "Skipping Resolutions" }
+        if ($options.Priorities) { Update-JiraPriorities @refreshSplat } else { Write-Verbose "Skipping Priorities" }
+        if ($options.IssueLinkTypes) { Update-JiraIssueLinkTypes @refreshSplat } else { Write-Verbose "Skipping Issue Link Types" }
+        if ($options.Users) { Update-JiraUsers @refreshSplat } else { Write-Verbose "Skipping Users" }
 
         ####################################################
         #  REFRESH STEP 2 - PROJECTS                       #
         ####################################################
 
-        # update projects, and in the process get a full project key list if necessary
-        $refreshProjectKeys = Update-JiraProjects -ProjectKeys $ProjectKeys @refreshSplat | ForEach-Object { $_.Project_Key }
+        if ($options.Projects) {
+            # update projects, and in the process get a full project key list if necessary
+            $refreshProjectKeys = Update-JiraProjects -ProjectKeys $ProjectKeys @refreshSplat | ForEach-Object { $_.Project_Key }
+        } else {
+            $refreshProjectKeys = $ProjectKeys
+            Write-Verbose "Skipping Projects"
+        }
 
         ####################################################
         #  REFRESH STEP 3 - PROJECT TAXONS                 #
         ####################################################
 
-        # next do the updates where the only context is the list of projects
-        Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat
-        Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat
+        if ($options.Projects) {
+            # next do the updates where the only context is the list of projects
+            Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat
+            Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat
+        } else {
+            Write-Verbose "Skipping Project Taxons"
+        }
 
         ####################################################
         #  REFRESH STEP 4 - WORKLOGS                       #
         ####################################################
 
-        # worklogs are refreshed based on the last unix timestamp of a refresh
-        # need to both update changed / new worklogs, and remove any that have been deleted
-        Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @refreshSplat
-        Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @sqlSplat
+        if ($options.Worklogs) {
+            # worklogs are refreshed based on the last unix timestamp of a refresh
+            # need to both update changed / new worklogs, and remove any that have been deleted
+            Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @refreshSplat
+            Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @sqlSplat
+        } else {
+            Write-Verbose "Skipping Worklogs"
+        }
+        
 
         ####################################################
         #  REFRESH STEP 5 - ISSUES                       #
         ####################################################
 
-        # issues are retrieved using jql crafted from the date of last refresh and optionally a project key list
+        if ($options.Issues) {
+            # issues are retrieved using jql crafted from the date of last refresh and optionally a project key list
 
-        # first format the date stamp and create the updated date clause
-        $jqlUpdateDate = (Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm")
-        $updateJql = "updatedDate >= '$jqlUpdateDate'"
+            # first format the date stamp and create the updated date clause
+            $jqlUpdateDate = (Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm")
+            $updateJql = "updatedDate >= '$jqlUpdateDate'"
 
-        # if we're refreshing a specific list of projects, create the clause; otherwise, don't add a project clause
-        $projectJql = if($null -eq $ProjectKeys -or $ProjectKeys.Count -eq 0) {
-            ""
-        } else {
-            " AND Project in (" + ($refreshProjectKeys -join ",") + ")"
-        }
-
-        # update issues with the crafted JQL
-        Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate -SyncDeployments:$SyncDeployments @refreshSplat
-
-        #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
-        $deleteRetrieveSuccess = $false
-        if ($RefreshType -eq (Get-JiraRefreshTypes).Differential) {
-            # use the project list if we're doing a list, otherwise use a "true = true" type clause to get everything
-            $deleteRetrieveSuccess = if ($null -eq $ProjectKeys) {
-                Update-JiraDeletedIssues -Jql "project is not EMPTY" @sqlSplat
+            # if we're refreshing a specific list of projects, create the clause; otherwise, don't add a project clause
+            $projectJql = if($null -eq $ProjectKeys -or $ProjectKeys.Count -eq 0) {
+                ""
             } else {
-                Update-JiraDeletedIssues -Jql $projectJql @sqlSplat
+                " AND Project in (" + ($refreshProjectKeys -join ",") + ")"
             }
+
+            # update issues with the crafted JQL
+            Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate -SyncDeployments:$options.Deployments @refreshSplat
+
+            #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
+            $deleteRetrieveSuccess = $false
+            if ($RefreshType -eq (Get-JiraRefreshTypes).Differential) {
+                # use the project list if we're doing a list, otherwise use a "true = true" type clause to get everything
+                $deleteRetrieveSuccess = if ($null -eq $ProjectKeys) {
+                    Update-JiraDeletedIssues -Jql "project is not EMPTY" @sqlSplat
+                } else {
+                    Update-JiraDeletedIssues -Jql $projectJql @sqlSplat
+                }
+            }
+        } else {
+            Write-Verbose "Skipping Issues"
         }
+        
 
         ####################################################
         #  REFRESH STEP 6 - SYNC STAGING TO LIVE TABLES    #
