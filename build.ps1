@@ -48,9 +48,10 @@ function Resolve-Module
 # Grab nuget bits, install modules, set build variables, start build.
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
-Resolve-Module Psake, PSDeploy, Pester, BuildHelpers
+Resolve-Module Psake, PSDeploy, Pester, BuildHelpers, PowerJira, SqlServer
 
 Set-BuildEnvironment
 
 Invoke-psake .\psake.ps1
-exit ( [int]( -not $psake.build_success ) )
+
+$host.SetShouldExit([int]( -not $psake.build_success ))
