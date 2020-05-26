@@ -97,7 +97,7 @@ function Update-JiraSql {
         }
 
         #setup the sync options
-        $options = Get-DefaultSyncOptions
+        $options = Get-DefaultJiraSyncOptions
         if ($SyncOptions) {
             $options = Merge-Hashtable -Source $SyncOptions -Target $options
         }
