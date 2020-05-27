@@ -20,6 +20,7 @@ BEGIN
 	UPDATE [dbo].[tbl_Jira_Refresh]
 	SET [Deleted] = 1
 
+	TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Component]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment_Environment]

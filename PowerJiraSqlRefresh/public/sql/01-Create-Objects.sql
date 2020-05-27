@@ -2005,6 +2005,84 @@ END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
+PRINT N'Creating [dbo].[tbl_stg_Jira_Changelog]'
+GO
+CREATE TABLE [dbo].[tbl_stg_Jira_Changelog]
+(
+   [Changelog_Id] [int] NOT NULL,
+   [Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+   [Created_Date] [datetime] NULL,
+   [Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+   [Issue_Id] [int] NOT NULL,
+   [Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_stg_Jira_Changelog] on [dbo].[tbl_stg_Jira_Changelog]'
+GO
+ALTER TABLE [dbo].[tbl_stg_Jira_Changelog] ADD CONSTRAINT [PK_tbl_stg_Jira_Changelog] PRIMARY KEY CLUSTERED  ([Changelog_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[tbl_Jira_Changelog]'
+GO
+CREATE TABLE [dbo].[tbl_Jira_Changelog]
+(
+   [Changelog_Id] [int] NOT NULL,
+   [Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+   [Created_Date] [datetime] NULL,
+   [Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+   [Issue_Id] [int] NOT NULL,
+   [Update_Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_Jira_Changelog] on [dbo].[tbl_Jira_Changelog]'
+GO
+ALTER TABLE [dbo].[tbl_Jira_Changelog] ADD CONSTRAINT [PK_tbl_Jira_Changelog] PRIMARY KEY CLUSTERED  ([Changelog_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Changelog]'
+GO
+
+
+-- =============================================
+-- Author:		Reuben Unruh
+-- Create date: 2020-05-21
+-- Description:	Synchronize the target Jira staging table to its production counterpart
+-- =============================================
+CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Changelog]
+AS
+BEGIN
+   DELETE FROM	[dbo].[tbl_Jira_Changelog]
+	WHERE [Changelog_Id] IN (SELECT DISTINCT [Changelog_Id]
+   FROM [dbo].[tbl_stg_Jira_Changelog])
+
+   INSERT INTO [dbo].[tbl_Jira_Changelog]
+      (
+      [Changelog_Id],
+      [Author_User_Id],
+      [Created_Date],
+      [Changelog_Items],
+      [Issue_Id],
+      [Update_Refresh_Id]
+      )
+   SELECT [Changelog_Id],
+      [Author_User_Id],
+      [Created_Date],
+      [Changelog_Items],
+      [Issue_Id],
+      [Refresh_Id]
+   FROM [dbo].[tbl_stg_Jira_Changelog]
+END
+
+
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
 PRINT N'Creating [dbo].[usp_Jira_Staging_Synchronize]'
 GO
 
@@ -2021,6 +2099,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+   EXEC [dbo].[usp_Jira_Staging_Sync_Changelog]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Component]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]
@@ -2471,6 +2550,7 @@ BEGIN
 	UPDATE [dbo].[tbl_Jira_Refresh]
 	SET [Deleted] = 1
 
+   TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Component]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment_Environment]
@@ -2564,6 +2644,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+   TRUNCATE TABLE [dbo].[tbl_stg_Jira_Changelog]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Component]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Deployment]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Deployment_Environment]
@@ -2916,84 +2997,6 @@ BEGIN
 	   ,[Status] = @Status
 	WHERE [Refresh_ID] = @Refresh_Id
 END
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_stg_Jira_Changelog]'
-GO
-CREATE TABLE [dbo].[tbl_stg_Jira_Changelog]
-(
-   [Changelog_Id] [int] NOT NULL,
-   [Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Created_Date] [datetime] NULL,
-   [Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Issue_Id] [int] NOT NULL,
-   [Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_stg_Jira_Changelog] on [dbo].[tbl_stg_Jira_Changelog]'
-GO
-ALTER TABLE [dbo].[tbl_stg_Jira_Changelog] ADD CONSTRAINT [PK_tbl_stg_Jira_Changelog] PRIMARY KEY CLUSTERED  ([Changelog_Id])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_Jira_Changelog]'
-GO
-CREATE TABLE [dbo].[tbl_Jira_Changelog]
-(
-   [Changelog_Id] [int] NOT NULL,
-   [Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Created_Date] [datetime] NULL,
-   [Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Issue_Id] [int] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_Jira_Changelog] on [dbo].[tbl_Jira_Changelog]'
-GO
-ALTER TABLE [dbo].[tbl_Jira_Changelog] ADD CONSTRAINT [PK_tbl_Jira_Changelog] PRIMARY KEY CLUSTERED  ([Changelog_Id])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Changelog]'
-GO
-
-
--- =============================================
--- Author:		Reuben Unruh
--- Create date: 2020-05-21
--- Description:	Synchronize the target Jira staging table to its production counterpart
--- =============================================
-CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Changelog]
-AS
-BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Changelog]
-	WHERE [Changelog_Id] IN (SELECT DISTINCT [Changelog_Id]
-   FROM [dbo].[tbl_stg_Jira_Changelog])
-
-   INSERT INTO [dbo].[tbl_Jira_Changelog]
-      (
-      [Changelog_Id],
-      [Author_User_Id],
-      [Created_Date],
-      [Changelog_Items],
-      [Issue_Id],
-      [Update_Refresh_Id]
-      )
-   SELECT [Changelog_Id],
-      [Author_User_Id],
-      [Created_Date],
-      [Changelog_Items],
-      [Issue_Id],
-      [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Changelog]
-END
-
-
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO

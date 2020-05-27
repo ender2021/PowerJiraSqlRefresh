@@ -15,6 +15,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	EXEC [dbo].[usp_Jira_Staging_Sync_Changelog]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Component]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]
