@@ -23,8 +23,8 @@ function Resolve-Module
             {                
                 $Version = $Module | Measure-Object -Property Version -Maximum | Select-Object -ExpandProperty Maximum
                 $GalleryVersion = Find-Module -Name $ModuleName -Repository PSGallery | Measure-Object -Property Version -Maximum | Select-Object -ExpandProperty Maximum
-
-                if ($Version -lt $GalleryVersion -or $RequiredVersions.ContainsKey($ModuleName) -ne $Version)
+                
+                if ($Version -lt $GalleryVersion -or ($RequiredVersions.ContainsKey($ModuleName) -and $RequiredVersions[$ModuleName] -ne $Version))
                 {
                     $expectedVersion = if ($RequiredVersions.ContainsKey($ModuleName)) {
                         $RequiredVersions[$ModuleName]
