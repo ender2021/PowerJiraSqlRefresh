@@ -49,7 +49,7 @@ function Resolve-Module
             {
                 Write-Verbose -Message "$($ModuleName) Missing, installing Module"
                 $ModuleParams = @{
-                    Name = $ModuleParams
+                    Name = $ModuleName
                     Force = $true
                 }
                 if ($RequiredVersions.ContainsKey($ModuleName)) {
