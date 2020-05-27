@@ -49,7 +49,7 @@ function Resolve-Module
             {
                 Write-Verbose -Message "$($ModuleName) Missing, installing Module"
                 $ModuleParams = @{
-                    Name = $Module
+                    Name = $ModuleParams
                     Force = $true
                 }
                 if ($RequiredVersions.ContainsKey($ModuleName)) {
@@ -67,8 +67,8 @@ Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
 Resolve-Module -Name Psake, PSDeploy, Pester, BuildHelpers, PowerJira, SqlServer -RequiredVersions @{Pester="3.4.0"}
 
-Set-BuildEnvironment
+#Set-BuildEnvironment
 
-Invoke-psake .\psake.ps1
+#Invoke-psake .\psake.ps1
 
 $host.SetShouldExit([int]( -not $psake.build_success ))
