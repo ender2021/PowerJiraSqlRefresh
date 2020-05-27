@@ -12,12 +12,6 @@ GO
 -- Description:	Clears all data from the Jira Refresh tables, and sets all batches to deleted (except the baseline record)
 -- =============================================
 
--- =============================================
--- Update Author:		Reuben Unruh
--- Update date: 2020-05-18
--- Description:	Adding deployment tables
--- =============================================
-
 CREATE PROCEDURE [dbo].[usp_Jira_Refresh_Clear_All]
 AS
 BEGIN

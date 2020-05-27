@@ -10,12 +10,6 @@ GO
 -- Description:	Clears the Jira staging tables
 -- =============================================
 
--- =============================================
--- Update Author:		Reuben Unruh
--- Update date: 2020-05-18
--- Description:	Adding deployment tables
--- =============================================
-
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Clear]
 AS
 BEGIN

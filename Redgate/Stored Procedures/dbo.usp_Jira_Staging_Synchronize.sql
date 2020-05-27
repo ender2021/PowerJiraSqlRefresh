@@ -9,11 +9,6 @@ GO
 -- Description:	Synchronize staging tables with the live tables
 -- =============================================
 
--- =============================================
--- Update Author:		Reuben Unruh
--- Update date: 2020-05-18
--- Description:	Adding Deployment tables
--- =============================================
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Synchronize]
 	@Sync_Deleted AS BIT = 1
 AS
