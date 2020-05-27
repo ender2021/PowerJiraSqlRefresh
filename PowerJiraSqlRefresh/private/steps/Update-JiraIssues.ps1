@@ -41,6 +41,7 @@ function Update-JiraIssues {
         Write-Verbose "Updating Issues"
         $issueTable = "tbl_stg_Jira_Issue"
         $sprintTable = "tbl_stg_Jira_Sprint"
+        $changelogTable = "tbl_stg_Jira_Changelog"
         $deploymentTable = "tbl_stg_Jira_Deployment"
         $environmentTable = "tbl_stg_Jira_Deployment_Environment"
         $issueTypeTable = "tbl_stg_Jira_Issue_Type"
@@ -52,11 +53,12 @@ function Update-JiraIssues {
         $issueDeploymentTable = "tbl_stg_Jira_Issue_Deployment"
         
         #results arrays
+        $allChangelogs = @()
+        $allDeployments = @()
+        $allEnvironments = @()
         $allIssues = @()
         $allIssueTypes = @()
         $allSprints = @()
-        $allDeployments = @()
-        $allEnvironments = @()
 
         # arrays to hold one to many relationship information
         $issueSprints = @()
@@ -79,7 +81,7 @@ function Update-JiraIssues {
 
             #get results
             Write-Verbose ("Getting Issue results $startAt to " + [string]($startAt + 100))
-            $result = Invoke-JiraSearchIssues -Jql $jql -GET -MaxResults 100 -StartAt $startAt
+            $result = Invoke-JiraSearchIssues -Jql $jql -GET -MaxResults 100 -StartAt $startAt -Expand "changelog"
 
             #if there were results, process them
             if ($result.issues.Count -ne 0) {
@@ -142,6 +144,11 @@ function Update-JiraIssues {
                         $issueSprints += $sprintList | ForEach-Object { [int]$_.Sprint_Id } | Read-JiraIssueSprint -IssueId $issueId -RefreshId $refreshId
                     }
 
+                    # capture changelog data
+                    if ($issue.changelog.histories -and $issue.changelog.histories.Count -gt 0) {
+                        $allChangelogs += $issue.changelog.histories | Where-Object { $_ } | Read-JiraChangelog -IssueId $issueId -RefreshId $RefreshId
+                    }
+
                     if ($SyncDeployments) {
                         # create and keep deployment information
                         $deployments = Invoke-JiraGetDeployments -Id $issueId
@@ -201,6 +208,9 @@ function Update-JiraIssues {
 
         Write-Verbose "Writing Sprints to staging table"
         $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
+
+        Write-Verbose "Writing Changelogs to staging table"
+        $allChangelogs | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $changelogTable
 
         Write-Verbose "Writing Deployments to staging table"
         $allDeployments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $deploymentTable

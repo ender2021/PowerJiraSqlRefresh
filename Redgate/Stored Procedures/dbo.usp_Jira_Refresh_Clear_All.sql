@@ -12,12 +12,6 @@ GO
 -- Description:	Clears all data from the Jira Refresh tables, and sets all batches to deleted (except the baseline record)
 -- =============================================
 
--- =============================================
--- Update Author:		Reuben Unruh
--- Update date: 2020-05-18
--- Description:	Adding deployment tables
--- =============================================
-
 CREATE PROCEDURE [dbo].[usp_Jira_Refresh_Clear_All]
 AS
 BEGIN
@@ -26,6 +20,7 @@ BEGIN
 	UPDATE [dbo].[tbl_Jira_Refresh]
 	SET [Deleted] = 1
 
+	TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Component]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment_Environment]

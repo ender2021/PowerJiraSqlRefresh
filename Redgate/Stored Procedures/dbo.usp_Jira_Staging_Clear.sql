@@ -10,17 +10,12 @@ GO
 -- Description:	Clears the Jira staging tables
 -- =============================================
 
--- =============================================
--- Update Author:		Reuben Unruh
--- Update date: 2020-05-18
--- Description:	Adding deployment tables
--- =============================================
-
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Clear]
 AS
 BEGIN
 	SET NOCOUNT ON;
 
+    TRUNCATE TABLE [dbo].[tbl_stg_Jira_Changelog]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Component]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Deployment]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Deployment_Environment]
