@@ -191,7 +191,7 @@ function Update-JiraSql {
         #  REFRESH STEP 5 - ISSUES                       #
         ####################################################
 
-        if ($options.Issues) {
+        if ($options.ContainsKey("Issues") -and $options.Issues -ne $false) {
             # issues are retrieved using jql crafted from the date of last refresh and optionally a project key list
 
             # first format the date stamp and create the updated date clause
@@ -206,7 +206,13 @@ function Update-JiraSql {
             }
 
             # update issues with the crafted JQL
-            Update-JiraIssues -Jql ($updateJql + $projectJql) -Obfuscate $Obfuscate -SyncDeployments:$options.Deployments @refreshSplat
+            $updateIssueParams = @{
+                Jql = $updateJql + $projectJql
+                Obfuscate = $Obfuscate
+            }
+            if ($options.Issues.GetType().Name -eq "Hashtable") { $updateIssueParams.Add("SyncOptions",$options.Issues) }
+            $updateIssueParams += $refreshSplat
+            Update-JiraIssues @updateIssueParams
 
             #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
             $deleteRetrieveSuccess = $false

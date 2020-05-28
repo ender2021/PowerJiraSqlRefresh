@@ -31,10 +31,10 @@ function Update-JiraIssues {
         [string]
         $SchemaName="dbo",
 
-        # Whether to sync deployments
+        # Synchronization options to override the defaults
         [Parameter()]
-        [switch]
-        $SyncDeployments
+        [hashtable]
+        $SyncOptions
     )
     
     begin {
@@ -42,20 +42,15 @@ function Update-JiraIssues {
         $issueTable = "tbl_stg_Jira_Issue"
         $sprintTable = "tbl_stg_Jira_Sprint"
         $changelogTable = "tbl_stg_Jira_Changelog"
-        $deploymentTable = "tbl_stg_Jira_Deployment"
-        $environmentTable = "tbl_stg_Jira_Deployment_Environment"
         $issueTypeTable = "tbl_stg_Jira_Issue_Type"
         $issueSprintTable = "tbl_stg_Jira_Issue_Sprint"
         $issueComponentTable = "tbl_stg_Jira_Issue_Component"
         $issueFixVersionTable = "tbl_stg_Jira_Issue_Fix_Version"
         $issueLabelTable = "tbl_stg_Jira_Issue_Label"
         $issueLinkTable = "tbl_stg_Jira_Issue_Link"
-        $issueDeploymentTable = "tbl_stg_Jira_Issue_Deployment"
         
         #results arrays
         $allChangelogs = @()
-        $allDeployments = @()
-        $allEnvironments = @()
         $allIssues = @()
         $allIssueTypes = @()
         $allSprints = @()
@@ -66,22 +61,32 @@ function Update-JiraIssues {
         $issueFixVersions = @()
         $issueLabels = @()
         $issueLinks = @()
-        $issueDeployments = @()
 
         #looping variables
         $startAt = 0
         $lastPageReached = $false
+
+        #options
+        $syncChangelogs = $null -ne $SyncOptions -and $SyncOptions.ContainsKey("Changelogs") -and $SyncOptions.Changelogs -ne $false
     }
     
     process {
         Write-Verbose "Getting Issues using JQL $Jql"
+        if (!$syncChangelogs) { Write-Verbose "Skipping Changelogs" }
         do {
             #keep current list of all Ids
             $idList = $allIssues | ForEach-Object { $_.Issue_Id }
 
             #get results
             Write-Verbose ("Getting Issue results $startAt to " + [string]($startAt + 100))
-            $result = Invoke-JiraSearchIssues -Jql $jql -GET -MaxResults 100 -StartAt $startAt -Expand "changelog"
+            $searchParams = @{
+                Jql = $jql
+                GET = $true
+                MaxResults = 100
+                StartAt = $startAt
+            }
+            if ($syncChangelogs) { $searchParams.Add("Expand","changelog") }
+            $result = Invoke-JiraSearchIssues @searchParams
 
             #if there were results, process them
             if ($result.issues.Count -ne 0) {
@@ -145,39 +150,10 @@ function Update-JiraIssues {
                     }
 
                     # capture changelog data
-                    if ($issue.changelog.histories -and $issue.changelog.histories.Count -gt 0) {
+                    if ($syncChangelogs -and $issue.changelog.histories -and $issue.changelog.histories.Count -gt 0) {
                         $allChangelogs += $issue.changelog.histories | Where-Object { $_ } | Read-JiraChangelog -IssueId $issueId -RefreshId $RefreshId
                     }
 
-                    if ($SyncDeployments) {
-                        # create and keep deployment information
-                        $deployments = Invoke-JiraGetDeployments -Id $issueId
-                        if ($deployments -and $deployments.Count -gt 0) {
-                            #parse deployments
-                            $deploymentList = $deployments | Where-Object { $_ } | Read-JiraDeployment -RefreshId $RefreshId
-
-                            #add new ones to the master list
-                            $currDeploymentUrls = $allDeployments | ForEach-Object { $_.Deployment_Url}
-                            $allDeployments += $deploymentList | Where-Object { $currDeploymentUrls -notcontains $_.Deployment_Url }
-
-                            #parse environments
-                            $environmentList = $deployments | Where-Object { $_ } | Read-JiraDeploymentEnvironment -RefreshId $RefreshId
-
-                            #add new ones to the master list
-                            $currEnvironmentIds = @()
-                            $currEnvironmentIds += $allEnvironments | ForEach-Object { $_.Environment_Id }
-                            $environmentList | ForEach-Object {
-                                if ($currEnvironmentIds -notcontains $_.Environment_Id) {
-                                    $allEnvironments += $_
-                                    $currEnvironmentIds += $_.Environment_Id
-                                }
-                            }
-
-                            #add to the list of issue deployment mappings
-                            $issueDeployments += $deploymentList | ForEach-Object { $_.Deployment_Url } | Read-JiraIssueDeployment -IssueId $issueId -RefreshId $refreshId
-                        }
-                    }
-        
                     # create and return issue object
                     $readSplat = @{
                         Data = $issue
@@ -203,40 +179,42 @@ function Update-JiraIssues {
     }
     
     end {
-        Write-Verbose "Writing Issue Types to staging table"
+        $issueTypesCount = $allIssueTypes.Count
+        Write-Verbose "Writing $issueTypesCount Issue Type record(s) to staging table"
         $allIssueTypes | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueTypeTable
 
-        Write-Verbose "Writing Sprints to staging table"
+        $sprintCount = $allSprints.Count
+        Write-Verbose "Writing $sprintCount Sprint record(s) to staging table"
         $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
 
-        Write-Verbose "Writing Changelogs to staging table"
-        $allChangelogs | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $changelogTable
+        if ($syncChangelogs) {
+            $clCount = $allChangelogs.Count
+            Write-Verbose "Writing $clCount Changelog record(s) to staging table"
+            $allChangelogs | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $changelogTable
+        }
 
-        Write-Verbose "Writing Deployments to staging table"
-        $allDeployments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $deploymentTable
-
-        Write-Verbose "Writing Deployment Environments to staging table"
-        $allEnvironments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $environmentTable
-
-        Write-Verbose "Writing Issues to staging table"
+        $issueCount = $allIssues.Count
+        Write-Verbose "Writing $issueCount Issue record(s) to staging table"
         $allIssues | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $issueTable
         
-        Write-Verbose "Writing Issue Labels to staging table"
+        $labelCount = $issueLabels.Count
+        Write-Verbose "Writing $labelCount Issue Label record(s) to staging table"
         $issueLabels | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLabelTable
 
-        Write-Verbose "Writing Issue Links to staging table"
+        $linksCount = $issueLinks.Count
+        Write-Verbose "Writing $linksCount Issue Link record(s) to staging table"
         $issueLinks | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLinkTable
 
-        Write-Verbose "Writing Issue-Sprint Mappings to staging table"
+        $issSprintCount = $issueSprints.Count
+        Write-Verbose "Writing $issSprintCount Issue-Sprint Mapping record(s) to staging table"
         $issueSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueSprintTable
 
-        Write-Verbose "Writing Issue-Component Mappings to staging table"
+        $issCompCount = $issueComponents.Count
+        Write-Verbose "Writing $issCompCount Issue-Component Mapping record(s) to staging table"
         $issueComponents | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueComponentTable
 
-        Write-Verbose "Writing Issue-Version Mappings to staging table"
+        $issFixCount = $issueFixVersions.Count
+        Write-Verbose "Writing $issFixCount Issue-Version Mapping record(s) to staging table"
         $issueFixVersions | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueFixVersionTable
-
-        Write-Verbose "Writing Issue-Deployments Mappings to staging table"
-        $issueDeployments | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueDeploymentTable
     }
 }

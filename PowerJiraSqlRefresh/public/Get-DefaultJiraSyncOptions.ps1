@@ -30,8 +30,10 @@ function Get-DefaultJiraSyncOptions {
             Users = $true
             Projects = $true
             Worklogs = $true
-            Issues = $true
-            Deployments = $true
+            Issues = @{
+                Changelogs = $true
+            }
+            
         }
     }
     
