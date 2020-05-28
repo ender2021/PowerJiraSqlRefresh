@@ -17,11 +17,8 @@ BEGIN
 
 	EXEC [dbo].[usp_Jira_Staging_Sync_Changelog]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Component]
-	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment]
-	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Component]
-	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Deployment]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Fix_Version]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Label]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Link]

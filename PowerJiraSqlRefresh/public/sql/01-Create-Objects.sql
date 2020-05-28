@@ -8,6 +8,8 @@ SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
 GO
 BEGIN TRANSACTION
 GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
 PRINT N'Creating role JiraRefreshRole'
 GO
 CREATE ROLE [JiraRefreshRole]
@@ -61,12 +63,12 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Status]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Status]
 (
-   [Status_Id] [int] NOT NULL,
-   [Status_Catgory_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Status_Id] [int] NOT NULL,
+[Status_Catgory_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Refresh_Id] [int] NOT NULL
+[Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -81,12 +83,12 @@ PRINT N'Creating [dbo].[tbl_Jira_Status]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Status]
 (
-   [Status_Id] [int] NOT NULL,
-   [Status_Catgory_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Status_Id] [int] NOT NULL,
+[Status_Catgory_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -107,24 +109,24 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Status]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Status]
+    DELETE FROM	[dbo].[tbl_Jira_Status]
 
-   INSERT INTO [dbo].[tbl_Jira_Status]
-      (
-      [Status_Id],
-      [Status_Catgory_Id],
-      [Name],
-      [Description],
-      [Icon_Url],
-      [Update_Refresh_Id]
-      )
-   SELECT [Status_Id],
-      [Status_Catgory_Id],
-      [Name],
-      [Description],
-      [Icon_Url],
-      [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Status]
+	INSERT INTO [dbo].[tbl_Jira_Status]
+	(
+	    [Status_Id],
+	    [Status_Catgory_Id],
+	    [Name],
+	    [Description],
+	    [Icon_Url],
+	    [Update_Refresh_Id]
+	)
+	SELECT [Status_Id],
+	    [Status_Catgory_Id],
+	    [Name],
+	    [Description],
+	    [Icon_Url],
+	    [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Status]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -133,16 +135,16 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Sprint]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Sprint]
 (
-   [Sprint_Id] [int] NOT NULL,
-   [Rapid_View_Id] [int] NOT NULL,
-   [State] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Sprint_Id] [int] NOT NULL,
+[Rapid_View_Id] [int] NOT NULL,
+[State] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Goal] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Start_Date] [datetime] NULL,
-   [End_Date] [datetime] NULL,
-   [Complete_Date] [datetime] NULL,
-   [Sequence] [int] NOT NULL,
-   [Refresh_Id] [int] NOT NULL
+[Goal] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Start_Date] [datetime] NULL,
+[End_Date] [datetime] NULL,
+[Complete_Date] [datetime] NULL,
+[Sequence] [int] NOT NULL,
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -157,16 +159,16 @@ PRINT N'Creating [dbo].[tbl_Jira_Sprint]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Sprint]
 (
-   [Sprint_Id] [int] NOT NULL,
-   [Rapid_View_Id] [int] NOT NULL,
-   [State] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Goal] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Start_Date] [datetime] NULL,
-   [End_Date] [datetime] NULL,
-   [Complete_Date] [datetime] NULL,
-   [Sequence] [int] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Sprint_Update_Refresh_Id] DEFAULT ((0))
+[Sprint_Id] [int] NOT NULL,
+[Rapid_View_Id] [int] NOT NULL,
+[State] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Goal] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Start_Date] [datetime] NULL,
+[End_Date] [datetime] NULL,
+[Complete_Date] [datetime] NULL,
+[Sequence] [int] NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Sprint_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -187,34 +189,33 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Sprint]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Sprint]
-	WHERE [Sprint_Id] IN (SELECT DISTINCT [Sprint_Id]
-   FROM [dbo].[tbl_stg_Jira_Sprint])
+    DELETE FROM [dbo].[tbl_Jira_Sprint]
+	WHERE [Sprint_Id] IN (SELECT DISTINCT [Sprint_Id] FROM [dbo].[tbl_stg_Jira_Sprint])
 
-   INSERT INTO [dbo].[tbl_Jira_Sprint]
-      (
-      [Sprint_Id],
-      [Rapid_View_Id],
-      [State],
-      [Name],
-      [Goal],
-      [Start_Date],
-      [End_Date],
-      [Complete_Date],
-      [Sequence],
-      [Update_Refresh_Id]
-      )
-   SELECT [Sprint_Id],
-      [Rapid_View_Id],
-      [State],
-      [Name],
-      [Goal],
-      [Start_Date],
-      [End_Date],
-      [Complete_Date],
-      [Sequence],
-      [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Sprint]
+	INSERT INTO [dbo].[tbl_Jira_Sprint]
+	(
+	    [Sprint_Id],
+	    [Rapid_View_Id],
+	    [State],
+	    [Name],
+	    [Goal],
+	    [Start_Date],
+	    [End_Date],
+	    [Complete_Date],
+	    [Sequence],
+	    [Update_Refresh_Id]
+	)
+	SELECT [Sprint_Id],
+	    [Rapid_View_Id],
+	    [State],
+	    [Name],
+	    [Goal],
+	    [Start_Date],
+	    [End_Date],
+	    [Complete_Date],
+	    [Sequence],
+	    [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Sprint]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -223,10 +224,10 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Resolution]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Resolution]
 (
-   [Resolution_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Refresh_Id] [int] NOT NULL
+[Resolution_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -265,20 +266,20 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Resolution]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Resolution]
+    DELETE FROM	[dbo].[tbl_Jira_Resolution]
 
-   INSERT INTO [dbo].[tbl_Jira_Resolution]
-      (
-      [Resolution_Id],
-      [Name],
-      [Description],
-      [Update_Refresh_Id]
-      )
-   SELECT [Resolution_Id],
-      [Name],
-      [Description],
-      [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Resolution]
+	INSERT INTO [dbo].[tbl_Jira_Resolution]
+	(
+	    [Resolution_Id],
+	    [Name],
+	    [Description],
+	    [Update_Refresh_Id]
+	)
+	SELECT [Resolution_Id],
+	    [Name],
+	    [Description],
+	    [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Resolution]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -287,10 +288,10 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Project_Category]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Project_Category]
 (
-   [Project_Category_Id] [int] NOT NULL,
+[Project_Category_Id] [int] NOT NULL,
 [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Refresh_Id] [int] NOT NULL
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -305,10 +306,10 @@ PRINT N'Creating [dbo].[tbl_Jira_Project_Category]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Project_Category]
 (
-   [Project_Category_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Project_Category_Update_Refresh_Id] DEFAULT ((0))
+[Project_Category_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Project_Category_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -329,20 +330,20 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Project_Category]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Project_Category]
+    DELETE FROM	[dbo].[tbl_Jira_Project_Category]
 
-   INSERT INTO [dbo].[tbl_Jira_Project_Category]
-      (
-      [Project_Category_Id],
-      [Name],
-      [Description],
-      [Update_Refresh_Id]
-      )
-   SELECT [Project_Category_Id],
-      [Name],
-      [Description],
-      [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Project_Category]
+	INSERT INTO [dbo].[tbl_Jira_Project_Category]
+	(
+	    [Project_Category_Id],
+	    [Name],
+	    [Description],
+	    [Update_Refresh_Id]
+	)
+	SELECT [Project_Category_Id],
+	    [Name],
+	    [Description],
+	    [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Project_Category]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -353,15 +354,15 @@ CREATE TABLE [dbo].[tbl_stg_Jira_Project]
 (
 [Project_Id] [int] NOT NULL,
 [Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Project_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Project_Project_Name] DEFAULT (''),
+[Project_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Project_Project_Name] DEFAULT (''),
 [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Category_Id] [int] NULL,
-   [Project_Type_Key] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Simplified] [bit] NOT NULL,
-   [Style] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Private] [bit] NOT NULL,
+[Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Category_Id] [int] NULL,
+[Project_Type_Key] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Simplified] [bit] NOT NULL,
+[Style] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Private] [bit] NOT NULL,
 [Refresh_Id] [int] NOT NULL
 )
 GO
@@ -377,18 +378,18 @@ PRINT N'Creating [dbo].[tbl_Jira_Project]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Project]
 (
-   [Project_Id] [int] NOT NULL,
-   [Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Project_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tbl_Jira_Project_Project_Name] DEFAULT (''),
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Category_Id] [int] NULL,
-   [Project_Type_Key] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Simplified] [bit] NOT NULL,
-   [Style] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Private] [bit] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Project_Update_Refresh_Id] DEFAULT ((0))
+[Project_Id] [int] NOT NULL,
+[Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Project_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL CONSTRAINT [DF_tbl_Jira_Project_Project_Name] DEFAULT (''),
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Category_Id] [int] NULL,
+[Project_Type_Key] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Simplified] [bit] NOT NULL,
+[Style] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Private] [bit] NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Project_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -409,38 +410,37 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Project]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Project]
-	WHERE [Project_Id] IN (SELECT DISTINCT [Project_Id]
-   FROM [dbo].[tbl_stg_Jira_Project])
+    DELETE FROM	[dbo].[tbl_Jira_Project]
+	WHERE [Project_Id] IN (SELECT DISTINCT [Project_Id] FROM [dbo].[tbl_stg_Jira_Project])
 
-   INSERT INTO [dbo].[tbl_Jira_Project]
+	INSERT INTO [dbo].[tbl_Jira_Project]
 	(
-      [Project_Id],
-      [Project_Key],
-      [Project_Name],
-      [Description],
-      [Lead_User_Id],
-      [Lead_User_Name],
-      [Category_Id],
-      [Project_Type_Key],
-      [Simplified],
-      [Style],
-      [Private],
+	    [Project_Id],
+	    [Project_Key],
+		[Project_Name],
+	    [Description],
+	    [Lead_User_Id],
+	    [Lead_User_Name],
+	    [Category_Id],
+	    [Project_Type_Key],
+	    [Simplified],
+	    [Style],
+	    [Private],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Project_Id],
-      [Project_Key],
-      [Project_Name],
-      [Description],
-      [Lead_User_Id],
-      [Lead_User_Name],
-      [Category_Id],
-      [Project_Type_Key],
-      [Simplified],
-      [Style],
-      [Private],
+	SELECT [Project_Id],
+	    [Project_Key],
+		[Project_Name],
+	    [Description],
+	    [Lead_User_Id],
+	    [Lead_User_Name],
+	    [Category_Id],
+	    [Project_Type_Key],
+	    [Simplified],
+	    [Style],
+	    [Private],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Project]
+	FROM [dbo].[tbl_stg_Jira_Project]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -449,11 +449,11 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue_Type]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Type]
 (
-   [Issue_Type_Id] [int] NOT NULL,
+[Issue_Type_Id] [int] NOT NULL,
 [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Subtask_Type] [bit] NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Subtask_Type] [bit] NOT NULL,
 [Update_Refresh_Id] [int] NOT NULL
 )
 GO
@@ -469,47 +469,47 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue]
 (
-   [Issue_Id] [int] NOT NULL,
-   [Issue_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Issue_Type_Id] [int] NOT NULL,
-   [Project_Id] [int] NOT NULL,
-   [Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Time_Spent] [int] NULL,
-   [Aggregate_Time_Spent] [int] NULL,
-   [Resolution_Date] [datetime] NULL,
-   [Work_Ratio] [bigint] NULL,
-   [Created_Date] [datetime] NOT NULL,
-   [Time_Estimate] [int] NULL,
-   [Aggregate_Time_Original_Estimate] [int] NULL,
-   [Updated_Date] [datetime] NOT NULL,
-   [Time_Original_Estimate] [int] NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Aggregate_Time_Estimate] [int] NULL,
-   [Summary] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Due_Date] [datetime] NULL,
-   [Flagged] [bit] NOT NULL,
-   [External_Reporter_Name] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [External_Reporter_Email] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [External_Reporter_Department] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Desired_Date] [datetime] NULL,
-   [Chart_Date_Of_First_Response] [datetime] NULL,
-   [Start_Date] [datetime] NULL,
-   [Story_Points] [int] NULL,
-   [Epic_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Resolution_Id] [int] NULL,
-   [Priority_Id] [int] NULL,
-   [Assignee_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Assignee_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Status_Id] [int] NOT NULL,
-   [Creator_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Creator_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Reporter_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Reporter_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Votes] [int] NULL,
-   [Parent_Id] [int] NULL,
-   [Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Issue_Update_Refresh_Id] DEFAULT ((0))
+[Issue_Id] [int] NOT NULL,
+[Issue_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Issue_Type_Id] [int] NOT NULL,
+[Project_Id] [int] NOT NULL,
+[Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Time_Spent] [int] NULL,
+[Aggregate_Time_Spent] [int] NULL,
+[Resolution_Date] [datetime] NULL,
+[Work_Ratio] [bigint] NULL,
+[Created_Date] [datetime] NOT NULL,
+[Time_Estimate] [int] NULL,
+[Aggregate_Time_Original_Estimate] [int] NULL,
+[Updated_Date] [datetime] NOT NULL,
+[Time_Original_Estimate] [int] NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Aggregate_Time_Estimate] [int] NULL,
+[Summary] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Due_Date] [datetime] NULL,
+[Flagged] [bit] NOT NULL,
+[External_Reporter_Name] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[External_Reporter_Email] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[External_Reporter_Department] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Desired_Date] [datetime] NULL,
+[Chart_Date_Of_First_Response] [datetime] NULL,
+[Start_Date] [datetime] NULL,
+[Story_Points] [int] NULL,
+[Epic_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Resolution_Id] [int] NULL,
+[Priority_Id] [int] NULL,
+[Assignee_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Assignee_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Status_Id] [int] NOT NULL,
+[Creator_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Creator_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Reporter_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Reporter_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Votes] [int] NULL,
+[Parent_Id] [int] NULL,
+[Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Issue_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -526,14 +526,14 @@ GO
 
 CREATE VIEW [dbo].[vw_Jira_Epic]
 AS
-   SELECT Issue_Id, Issue_Key, iss.Issue_Type_Id, Project_Id, Project_Key, Time_Spent, Aggregate_Time_Spent, Resolution_Date, Work_Ratio, Created_Date, Time_Estimate, Aggregate_Time_Original_Estimate, Updated_Date,
-      Time_Original_Estimate, iss.Description, Aggregate_Time_Estimate, Summary, Due_Date, Flagged, External_Reporter_Name, External_Reporter_Email, External_Reporter_Department, Desired_Date,
-      Chart_Date_Of_First_Response, Start_Date, Story_Points, Epic_Key, Resolution_Id, Priority_Id, Assignee_User_Id, Assignee_User_Name, Status_Id, Creator_User_Id, Creator_User_Name, Reporter_User_Id,
-      Reporter_User_Name, Votes, Parent_Id, Parent_Key, [Epic_Name], iss.Update_Refresh_Id
-   FROM dbo.tbl_Jira_Issue AS iss
-      INNER JOIN [dbo].[tbl_Jira_Issue_Type] AS [type]
-      ON [type].[Issue_Type_Id] = [iss].[Issue_Type_Id]
-   WHERE  [type].[Name] = 'Epic'
+SELECT        Issue_Id, Issue_Key, iss.Issue_Type_Id, Project_Id, Project_Key, Time_Spent, Aggregate_Time_Spent, Resolution_Date, Work_Ratio, Created_Date, Time_Estimate, Aggregate_Time_Original_Estimate, Updated_Date, 
+                         Time_Original_Estimate, iss.Description, Aggregate_Time_Estimate, Summary, Due_Date, Flagged, External_Reporter_Name, External_Reporter_Email, External_Reporter_Department, Desired_Date, 
+                         Chart_Date_Of_First_Response, Start_Date, Story_Points, Epic_Key, Resolution_Id, Priority_Id, Assignee_User_Id, Assignee_User_Name, Status_Id, Creator_User_Id, Creator_User_Name, Reporter_User_Id, 
+                         Reporter_User_Name, Votes, Parent_Id, Parent_Key, [Epic_Name], iss.Update_Refresh_Id
+FROM            dbo.tbl_Jira_Issue AS iss
+INNER JOIN [dbo].[tbl_Jira_Issue_Type] AS [type]
+ON [type].[Issue_Type_Id] = [iss].[Issue_Type_Id]
+WHERE  [type].[Name] = 'Epic'
 
 
 GO
@@ -544,24 +544,24 @@ GO
 
 CREATE VIEW [dbo].[vw_Jira_Project_Small]
 AS
-   SELECT [epic].[Project_Id]
-      , [epic].[Issue_Key] AS [Project_Key]
-	  , [epic].[Epic_Name] AS [Project_Name]
-	  , [epic].[Description]
-	  , [epic].[Assignee_User_Id] AS [Lead_User_Id]
-	  , [epic].[Assignee_User_Name] AS [Lead_User_Name]
-	  , [proj].[Category_Id]
-	  , [proj].[Project_Type_Key]
-	  , [proj].[Simplified]
-	  , [proj].[Style]
-	  , [proj].[Private]
-	  , [epic].[Update_Refresh_Id]
-   FROM [dbo].[vw_Jira_Epic] AS epic
-      INNER JOIN [dbo].[tbl_Jira_Project] AS proj
-      ON [proj].[Project_Id] = [epic].[Project_Id]
-      INNER JOIN [dbo].[tbl_Jira_Project_Category] AS cat
-      ON proj.[Category_Id] = [cat].[Project_Category_Id]
-   WHERE cat.[Name] = 'Small Projects'
+SELECT [epic].[Project_Id]
+      ,[epic].[Issue_Key] AS [Project_Key]
+	  ,[epic].[Epic_Name] AS [Project_Name]
+	  ,[epic].[Description]
+	  ,[epic].[Assignee_User_Id] AS [Lead_User_Id]
+	  ,[epic].[Assignee_User_Name] AS [Lead_User_Name]
+	  ,[proj].[Category_Id]
+	  ,[proj].[Project_Type_Key]
+	  ,[proj].[Simplified]
+	  ,[proj].[Style]
+	  ,[proj].[Private]
+	  ,[epic].[Update_Refresh_Id]
+FROM [dbo].[vw_Jira_Epic] AS epic
+INNER JOIN [dbo].[tbl_Jira_Project] AS proj
+ON [proj].[Project_Id] = [epic].[Project_Id]
+INNER JOIN [dbo].[tbl_Jira_Project_Category] AS cat
+ON proj.[Category_Id] = [cat].[Project_Category_Id]
+WHERE cat.[Name] = 'Small Projects'
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -569,7 +569,7 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_All_Id]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_All_Id]
 (
-   [Issue_Id] [int] NOT NULL
+[Issue_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -590,10 +590,10 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Deleted]
 AS
 BEGIN
-   DELETE iss
+    DELETE iss
 	FROM [dbo].[tbl_stg_Jira_Issue_All_Id] AS id
-      RIGHT JOIN [dbo].[tbl_Jira_Issue] AS iss
-      ON [iss].[Issue_Id] = [id].[Issue_Id]
+	RIGHT JOIN [dbo].[tbl_Jira_Issue] AS iss
+	ON [iss].[Issue_Id] = [id].[Issue_Id]
 	WHERE id.[Issue_Id] IS null
 END
 GO
@@ -604,296 +604,11 @@ GO
 
 CREATE VIEW [dbo].[vw_Jira_Project_Virtual]
 AS
-         SELECT *
-      FROM [dbo].[vw_Jira_Project_Small]
+SELECT * FROM [dbo].[vw_Jira_Project_Small]
 
-   UNION ALL
+UNION ALL
 
-      SELECT *
-      FROM [dbo].[tbl_Jira_Project]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Deployment]'
-GO
-CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Deployment]
-(
-   [Issue_Id] [int] NOT NULL,
-   [Deployment_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_stg_Jira_Issue_Deployment] on [dbo].[tbl_stg_Jira_Issue_Deployment]'
-GO
-ALTER TABLE [dbo].[tbl_stg_Jira_Issue_Deployment] ADD CONSTRAINT [PK_tbl_stg_Jira_Issue_Deployment] PRIMARY KEY CLUSTERED  ([Issue_Id], [Deployment_Url])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_stg_Jira_Issue]'
-GO
-CREATE TABLE [dbo].[tbl_stg_Jira_Issue]
-(
-   [Issue_Id] [int] NOT NULL,
-   [Issue_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Issue_Type_Id] [int] NOT NULL,
-   [Project_Id] [int] NOT NULL,
-   [Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Time_Spent] [int] NULL,
-   [Aggregate_Time_Spent] [int] NULL,
-   [Resolution_Date] [datetime] NULL,
-   [Work_Ratio] [bigint] NULL,
-   [Created_Date] [datetime] NOT NULL,
-   [Time_Estimate] [int] NULL,
-   [Aggregate_Time_Original_Estimate] [int] NULL,
-   [Updated_Date] [datetime] NOT NULL,
-   [Time_Original_Estimate] [int] NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Aggregate_Time_Estimate] [int] NULL,
-   [Summary] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Due_Date] [datetime] NULL,
-   [Flagged] [bit] NOT NULL,
-   [External_Reporter_Name] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [External_Reporter_Email] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [External_Reporter_Department] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Desired_Date] [datetime] NULL,
-   [Chart_Date_Of_First_Response] [datetime] NULL,
-   [Start_Date] [datetime] NULL,
-   [Story_Points] [int] NULL,
-   [Epic_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Resolution_Id] [int] NULL,
-   [Priority_Id] [int] NULL,
-   [Assignee_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Assignee_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Status_Id] [int] NOT NULL,
-   [Creator_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Creator_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Reporter_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Reporter_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Votes] [int] NULL,
-   [Parent_Id] [int] NULL,
-   [Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_Jira_Issue_Staging] on [dbo].[tbl_stg_Jira_Issue]'
-GO
-ALTER TABLE [dbo].[tbl_stg_Jira_Issue] ADD CONSTRAINT [PK_tbl_Jira_Issue_Staging] PRIMARY KEY CLUSTERED  ([Issue_Id])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_Jira_Issue_Deployment]'
-GO
-CREATE TABLE [dbo].[tbl_Jira_Issue_Deployment]
-(
-   [Issue_Id] [int] NOT NULL,
-   [Deployment_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-[Update_Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_Jira_Issue_Deployment] on [dbo].[tbl_Jira_Issue_Deployment]'
-GO
-ALTER TABLE [dbo].[tbl_Jira_Issue_Deployment] ADD CONSTRAINT [PK_tbl_Jira_Issue_Deployment] PRIMARY KEY CLUSTERED  ([Issue_Id], [Deployment_Url])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Issue_Deployment]'
-GO
-
--- =============================================
--- Author:		Reuben Unruh
--- Create date: 2020-05-18
--- Description:	Synchronize the target Jira staging table to its production counterpart
--- =============================================
-CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Deployment]
-AS
-BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Deployment]
-	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue])
-
-   INSERT INTO [dbo].[tbl_Jira_Issue_Deployment]
-	(
-      [Issue_Id],
-      [Deployment_Url],
-	    [Update_Refresh_Id]
-	)
-   SELECT DISTINCT [Issue_Id],
-      [Deployment_Url],
-	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Deployment]
-END
-
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_stg_Jira_Deployment_Environment]'
-GO
-CREATE TABLE [dbo].[tbl_stg_Jira_Deployment_Environment]
-(
-   [Environment_Id] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Environment_Type] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Display_Name] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-[Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_stg_Jira_Deployment_Environment] on [dbo].[tbl_stg_Jira_Deployment_Environment]'
-GO
-ALTER TABLE [dbo].[tbl_stg_Jira_Deployment_Environment] ADD CONSTRAINT [PK_tbl_stg_Jira_Deployment_Environment] PRIMARY KEY CLUSTERED  ([Environment_Id])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_Jira_Deployment_Environment]'
-GO
-CREATE TABLE [dbo].[tbl_Jira_Deployment_Environment]
-(
-   [Environment_Id] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Environment_Type] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Display_Name] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-[Update_Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_Jira_Deployment_Environment] on [dbo].[tbl_Jira_Deployment_Environment]'
-GO
-ALTER TABLE [dbo].[tbl_Jira_Deployment_Environment] ADD CONSTRAINT [PK_tbl_Jira_Deployment_Environment] PRIMARY KEY CLUSTERED  ([Environment_Id])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]'
-GO
-
--- =============================================
--- Author:		Reuben Unruh
--- Create date: 2020-05-18
--- Description:	Synchronize the target Jira staging table to its production counterpart
--- =============================================
-CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]
-AS
-BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Deployment_Environment]
-	WHERE [Environment_Id] IN (SELECT DISTINCT [Environment_Id]
-   FROM [dbo].[tbl_stg_Jira_Deployment_Environment])
-
-   INSERT INTO [dbo].[tbl_Jira_Deployment_Environment]
-	(
-      [Environment_Id],
-      [Environment_Type],
-      [Display_Name],
-	    [Update_Refresh_Id]
-	)
-   SELECT [Environment_Id],
-      [Environment_Type],
-      [Display_Name],
-	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Deployment_Environment]
-END
-
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_stg_Jira_Deployment]'
-GO
-CREATE TABLE [dbo].[tbl_stg_Jira_Deployment]
-(
-   [Display_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Deployment_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [State] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Last_Updated] [datetime] NULL,
-   [Pipeline_Id] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Pipeline_Display_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Pipeline_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Environment_Id] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_stg_Jira_Deployment] on [dbo].[tbl_stg_Jira_Deployment]'
-GO
-ALTER TABLE [dbo].[tbl_stg_Jira_Deployment] ADD CONSTRAINT [PK_tbl_stg_Jira_Deployment] PRIMARY KEY CLUSTERED  ([Deployment_Url])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[tbl_Jira_Deployment]'
-GO
-CREATE TABLE [dbo].[tbl_Jira_Deployment]
-(
-   [Display_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Deployment_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [State] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Last_Updated] [datetime] NULL,
-   [Pipeline_Id] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Pipeline_Display_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Pipeline_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Environment_Id] [varchar] (20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-[Update_Refresh_Id] [int] NOT NULL
-)
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating primary key [PK_tbl_Jira_Deployment] on [dbo].[tbl_Jira_Deployment]'
-GO
-ALTER TABLE [dbo].[tbl_Jira_Deployment] ADD CONSTRAINT [PK_tbl_Jira_Deployment] PRIMARY KEY CLUSTERED  ([Deployment_Url])
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Deployment]'
-GO
-
-
-
-
--- =============================================
--- Author:		Reuben Unruh
--- Create date: 2020-05-18
--- Description:	Synchronize the target Jira staging table to its production counterpart
--- =============================================
-CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Deployment]
-AS
-BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Deployment]
-	WHERE [Deployment_Url] IN (SELECT DISTINCT [Deployment_Url]
-   FROM [dbo].[tbl_stg_Jira_Deployment])
-
-   INSERT INTO [dbo].[tbl_Jira_Deployment]
-	(
-
-      [Display_Name] ,
-      [Deployment_Url],
-      [State],
-      [Last_Updated],
-      [Pipeline_Id],
-      [Pipeline_Display_Name],
-      [Pipeline_Url],
-      [Environment_Id],
-	    [Update_Refresh_Id]
-	)
-   SELECT
-      [Display_Name] ,
-      [Deployment_Url],
-      [State],
-      [Last_Updated],
-      [Pipeline_Id],
-      [Pipeline_Display_Name],
-      [Pipeline_Url],
-      [Environment_Id],
-	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Deployment]
-END
-
-
-
-
+SELECT * FROM [dbo].[tbl_Jira_Project]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -901,12 +616,12 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Priority]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Priority]
 (
-   [Priority_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Status_Color] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Refresh_Id] [int] NOT NULL
+[Priority_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Status_Color] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -921,11 +636,11 @@ PRINT N'Creating [dbo].[tbl_Jira_Priority]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Priority]
 (
-   [Priority_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Status_Color] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Priority_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Status_Color] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Update_Refresh_Id] [int] NOT NULL
 )
 GO
@@ -947,24 +662,24 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Priority]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Priority]
+    DELETE FROM	[dbo].[tbl_Jira_Priority]
 
-   INSERT INTO [dbo].[tbl_Jira_Priority]
+	INSERT INTO [dbo].[tbl_Jira_Priority]
 	(
-      [Priority_Id],
-      [Name],
-      [Description],
-      [Icon_Url],
-      [Status_Color],
+	    [Priority_Id],
+	    [Name],
+	    [Description],
+	    [Icon_Url],
+	    [Status_Color],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Priority_Id],
-      [Name],
-      [Description],
-      [Icon_Url],
-      [Status_Color],
+	SELECT [Priority_Id],
+	    [Name],
+	    [Description],
+	    [Icon_Url],
+	    [Status_Color],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Priority]
+	FROM [dbo].[tbl_stg_Jira_Priority]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -973,11 +688,11 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Link_Type]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Link_Type]
 (
-   [Issue_Link_Type_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Inward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Outward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Refresh_Id] [int] NOT NULL
+[Issue_Link_Type_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Inward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Outward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -992,11 +707,11 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue_Link_Type]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Link_Type]
 (
-   [Issue_Link_Type_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Inward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Outward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Issue_Link_Type_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Inward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Outward_Label] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1017,22 +732,22 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Link_Type]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Link_Type]
+    DELETE FROM [dbo].[tbl_Jira_Issue_Link_Type]
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Link_Type]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Link_Type]
 	(
-      [Issue_Link_Type_Id],
-      [Name],
-      [Inward_Label],
-      [Outward_Label],
+	    [Issue_Link_Type_Id],
+	    [Name],
+	    [Inward_Label],
+	    [Outward_Label],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Issue_Link_Type_Id],
-      [Name],
-      [Inward_Label],
-      [Outward_Label],
+	SELECT [Issue_Link_Type_Id],
+	    [Name],
+	    [Inward_Label],
+	    [Outward_Label],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Link_Type]
+	FROM [dbo].[tbl_stg_Jira_Issue_Link_Type]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1040,21 +755,20 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Project]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Project]
-AS
-   SELECT [Project_Id]
-      , [Project_Key]
-      , [Project_Name]
-      , [Description]
-      , [Lead_User_Id]
-      , [Lead_User_Name]
-      , [Category_Id]
-      , [Project_Type_Key]
-      , [Simplified]
-      , [Style]
-      , [Private]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Project]
+CREATE VIEW [dbo].[vw_Jira_Project] AS
+SELECT [Project_Id]
+      ,[Project_Key]
+      ,[Project_Name]
+      ,[Description]
+      ,[Lead_User_Id]
+      ,[Lead_User_Name]
+      ,[Category_Id]
+      ,[Project_Type_Key]
+      ,[Simplified]
+      ,[Style]
+      ,[Private]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Project]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -1062,11 +776,11 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Type]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Type]
 (
-   [Issue_Type_Id] [int] NOT NULL,
+[Issue_Type_Id] [int] NOT NULL,
 [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Subtask_Type] [bit] NOT NULL,
+[Icon_Url] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Subtask_Type] [bit] NOT NULL,
 [Refresh_Id] [int] NOT NULL
 )
 GO
@@ -1088,26 +802,25 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Type]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Issue_Type]
-	WHERE [Issue_Type_Id] IN (SELECT DISTINCT [Issue_Type_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Type])
+    DELETE FROM	[dbo].[tbl_Jira_Issue_Type]
+	WHERE [Issue_Type_Id] IN (SELECT DISTINCT [Issue_Type_Id] FROM [dbo].[tbl_stg_Jira_Issue_Type])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Type]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Type]
 	(
-      [Issue_Type_Id],
+	    [Issue_Type_Id],
 	    [Name],
 	    [Description],
-      [Icon_Url],
-      [Subtask_Type],
+	    [Icon_Url],
+	    [Subtask_Type],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Issue_Type_Id],
-	    [Name],
-	    [Description],
-      [Icon_Url],
-      [Subtask_Type],
-	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Type]
+	SELECT [Issue_Type_Id],
+		[Name],
+		[Description],
+		[Icon_Url],
+		[Subtask_Type],
+		[Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Issue_Type]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1192,12 +905,10 @@ CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Worklog]
 AS
 BEGIN
     DELETE FROM [dbo].[tbl_Jira_Worklog]
-	WHERE [Worklog_Id] IN (SELECT DISTINCT [Worklog_Id]
-   FROM [dbo].[tbl_stg_Jira_Worklog])
+	WHERE [Worklog_Id] IN (SELECT DISTINCT [Worklog_Id] FROM [dbo].[tbl_stg_Jira_Worklog])
 
 	DELETE FROM [dbo].[tbl_Jira_Worklog]
-	WHERE [Worklog_Id] IN (SELECT [Worklog_Id]
-   FROM [dbo].[tbl_stg_Jira_Worklog_Delete])
+	WHERE [Worklog_Id] IN (SELECT [Worklog_Id] FROM [dbo].[tbl_stg_Jira_Worklog_Delete])
 
 	INSERT INTO [dbo].[tbl_Jira_Worklog]
 	(
@@ -1261,16 +972,16 @@ PRINT N'Creating [dbo].[tbl_Jira_Version]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Version]
 (
-   [Version_Id] [int] NOT NULL,
-   [Project_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Archived] [bit] NOT NULL,
-   [Released] [bit] NOT NULL,
-   [Start_Date] [datetime] NULL,
-   [Release_Date] [datetime] NULL,
-   [User_Start_Date] [datetime] NULL,
-   [User_Release_Date] [datetime] NULL,
-   [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Version_Update_Refresh_Id] DEFAULT ((0))
+[Version_Id] [int] NOT NULL,
+[Project_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Archived] [bit] NOT NULL,
+[Released] [bit] NOT NULL,
+[Start_Date] [datetime] NULL,
+[Release_Date] [datetime] NULL,
+[User_Start_Date] [datetime] NULL,
+[User_Release_Date] [datetime] NULL,
+[Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Version_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1292,8 +1003,7 @@ CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Version]
 AS
 BEGIN
     DELETE FROM [dbo].[tbl_Jira_Version]
-	WHERE [Project_Id] IN (SELECT DISTINCT [Project_Id]
-   FROM [dbo].[tbl_stg_Jira_Project])
+	WHERE [Project_Id] IN (SELECT DISTINCT [Project_Id] FROM [dbo].[tbl_stg_Jira_Project])
 
 	INSERT INTO [dbo].[tbl_Jira_Version]
 	(
@@ -1351,16 +1061,16 @@ PRINT N'Creating [dbo].[tbl_Jira_User]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_User]
 (
-   [Account_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Account_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [DisplayName] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Avatar_16] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Avatar_24] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Avatar_32] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Avatar_48] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Active] [bit] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Account_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Account_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[DisplayName] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Avatar_16] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Avatar_24] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Avatar_32] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Avatar_48] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Active] [bit] NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1434,11 +1144,11 @@ PRINT N'Creating [dbo].[tbl_Jira_Status_Category]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Status_Category]
 (
-   [Status_Category_Id] [int] NOT NULL,
-   [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Key] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Color_Name] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Status_Category_Id] [int] NOT NULL,
+[Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Key] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Color_Name] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1484,8 +1194,8 @@ GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Sprint]
 (
 [Sprint_Id] [int] NOT NULL,
-   [Issue_Id] [int] NOT NULL,
-   [Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Issue_Sprint_Refresh_Id] DEFAULT ((0))
+[Issue_Id] [int] NOT NULL,
+[Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Issue_Sprint_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1496,13 +1206,68 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Issue_Sprint] ADD CONSTRAINT [PK_tbl_Jira_Issue_
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
+PRINT N'Creating [dbo].[tbl_stg_Jira_Issue]'
+GO
+CREATE TABLE [dbo].[tbl_stg_Jira_Issue]
+(
+[Issue_Id] [int] NOT NULL,
+[Issue_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Issue_Type_Id] [int] NOT NULL,
+[Project_Id] [int] NOT NULL,
+[Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Time_Spent] [int] NULL,
+[Aggregate_Time_Spent] [int] NULL,
+[Resolution_Date] [datetime] NULL,
+[Work_Ratio] [bigint] NULL,
+[Created_Date] [datetime] NOT NULL,
+[Time_Estimate] [int] NULL,
+[Aggregate_Time_Original_Estimate] [int] NULL,
+[Updated_Date] [datetime] NOT NULL,
+[Time_Original_Estimate] [int] NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Aggregate_Time_Estimate] [int] NULL,
+[Summary] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Due_Date] [datetime] NULL,
+[Flagged] [bit] NOT NULL,
+[External_Reporter_Name] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[External_Reporter_Email] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[External_Reporter_Department] [varchar] (500) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Desired_Date] [datetime] NULL,
+[Chart_Date_Of_First_Response] [datetime] NULL,
+[Start_Date] [datetime] NULL,
+[Story_Points] [int] NULL,
+[Epic_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Resolution_Id] [int] NULL,
+[Priority_Id] [int] NULL,
+[Assignee_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Assignee_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Status_Id] [int] NOT NULL,
+[Creator_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Creator_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Reporter_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Reporter_User_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Votes] [int] NULL,
+[Parent_Id] [int] NULL,
+[Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_Jira_Issue_Staging] on [dbo].[tbl_stg_Jira_Issue]'
+GO
+ALTER TABLE [dbo].[tbl_stg_Jira_Issue] ADD CONSTRAINT [PK_tbl_Jira_Issue_Staging] PRIMARY KEY CLUSTERED  ([Issue_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
 PRINT N'Creating [dbo].[tbl_Jira_Issue_Sprint]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Sprint]
 (
 [Sprint_Id] [int] NOT NULL,
-   [Issue_Id] [int] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Issue_Id] [int] NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1523,20 +1288,19 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Sprint]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Sprint]
-	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue])
+    DELETE FROM [dbo].[tbl_Jira_Issue_Sprint]
+	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Sprint]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Sprint]
 	(
 	    [Sprint_Id],
-      [Issue_Id],
+	    [Issue_Id],
 	    [Update_Refresh_Id]
 	)
-   SELECT DISTINCT [Sprint_Id],
-      [Issue_Id],
+	SELECT DISTINCT [Sprint_Id],
+	    [Issue_Id],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Sprint]
+	FROM [dbo].[tbl_stg_Jira_Issue_Sprint]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1545,12 +1309,12 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Link]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Link]
 (
-   [Issue_Link_Id] [int] NOT NULL,
-   [Link_Type_Id] [int] NOT NULL,
-   [In_Issue_Id] [int] NOT NULL,
-   [In_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Out_Issue_Id] [int] NOT NULL,
-   [Out_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Issue_Link_Id] [int] NOT NULL,
+[Link_Type_Id] [int] NOT NULL,
+[In_Issue_Id] [int] NOT NULL,
+[In_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Out_Issue_Id] [int] NOT NULL,
+[Out_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Refresh_Id] [int] NOT NULL
 )
 GO
@@ -1566,13 +1330,13 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue_Link]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Link]
 (
-   [Issue_Link_Id] [int] NOT NULL,
-   [Link_Type_Id] [int] NOT NULL,
-   [In_Issue_Id] [int] NOT NULL,
-   [In_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Out_Issue_Id] [int] NOT NULL,
-   [Out_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Issue_Link_Id] [int] NOT NULL,
+[Link_Type_Id] [int] NOT NULL,
+[In_Issue_Id] [int] NOT NULL,
+[In_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Out_Issue_Id] [int] NOT NULL,
+[Out_Issue_Key] [varchar] (300) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1593,30 +1357,28 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Link]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Link]
-	WHERE [In_Issue_Id] IN (SELECT [Issue_Id]
-      FROM [dbo].[tbl_stg_Jira_Issue])
-      OR [Out_Issue_Id] IN (SELECT [Issue_Id]
-      FROM [dbo].[tbl_stg_Jira_Issue])
+    DELETE FROM [dbo].[tbl_Jira_Issue_Link]
+	WHERE [In_Issue_Id] IN (SELECT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
+	   OR [Out_Issue_Id] IN (SELECT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Link]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Link]
 	(
-      [Issue_Link_Id],
-      [Link_Type_Id],
-      [In_Issue_Id],
-      [In_Issue_Key],
-      [Out_Issue_Id],
-      [Out_Issue_Key],
+	    [Issue_Link_Id],
+	    [Link_Type_Id],
+	    [In_Issue_Id],
+	    [In_Issue_Key],
+	    [Out_Issue_Id],
+	    [Out_Issue_Key],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Issue_Link_Id],
-      [Link_Type_Id],
-      [In_Issue_Id],
-      [In_Issue_Key],
-      [Out_Issue_Id],
-      [Out_Issue_Key],
+	SELECT [Issue_Link_Id],
+	    [Link_Type_Id],
+	    [In_Issue_Id],
+	    [In_Issue_Key],
+	    [Out_Issue_Id],
+	    [Out_Issue_Key],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Link]
+	FROM [dbo].[tbl_stg_Jira_Issue_Link]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1625,7 +1387,7 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Label]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Label]
 (
-   [Label] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Label] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Issue_Id] [int] NOT NULL,
 [Refresh_Id] [int] NOT NULL
 )
@@ -1642,7 +1404,7 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue_Label]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Label]
 (
-   [Label] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Label] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Issue_Id] [int] NOT NULL,
 [Update_Refresh_Id] [int] NOT NULL
 )
@@ -1665,20 +1427,19 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Label]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Label]
-	WHERE [Issue_Id] IN (SELECT [Issue_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue])
+    DELETE FROM [dbo].[tbl_Jira_Issue_Label]
+	WHERE [Issue_Id] IN (SELECT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Label]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Label]
 	(
-      [Label],
+	    [Label],
 	    [Issue_Id],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Label],
-      [Issue_Id],
+	SELECT [Label],
+	    [Issue_Id],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Label]
+	FROM [dbo].[tbl_stg_Jira_Issue_Label]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1687,9 +1448,9 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Fix_Version]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Fix_Version]
 (
-   [Issue_Id] [int] NOT NULL,
-   [Version_Id] [int] NOT NULL,
-   [Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Issue_Fix_Version_Refresh_Id] DEFAULT ((0))
+[Issue_Id] [int] NOT NULL,
+[Version_Id] [int] NOT NULL,
+[Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Issue_Fix_Version_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1704,8 +1465,8 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue_Fix_Version]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Fix_Version]
 (
-   [Issue_Id] [int] NOT NULL,
-   [Version_Id] [int] NOT NULL,
+[Issue_Id] [int] NOT NULL,
+[Version_Id] [int] NOT NULL,
 [Update_Refresh_Id] [int] NOT NULL
 )
 GO
@@ -1727,20 +1488,19 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Fix_Version]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Fix_Version]
-	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue])
+    DELETE FROM [dbo].[tbl_Jira_Issue_Fix_Version]
+	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Fix_Version]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Fix_Version]
 	(
-      [Issue_Id],
-      [Version_Id],
+	    [Issue_Id],
+	    [Version_Id],
 	    [Update_Refresh_Id]
 	)
-   SELECT DISTINCT [Issue_Id],
-      [Version_Id],
-		[Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Fix_Version]
+	SELECT DISTINCT [Issue_Id],
+	    [Version_Id],
+	    [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Issue_Fix_Version]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1749,9 +1509,9 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Component]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Component]
 (
-   [Issue_Id] [int] NOT NULL,
-   [Component_Id] [int] NOT NULL,
-   [Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Issue_Component_Refresh_Id] DEFAULT ((0))
+[Issue_Id] [int] NOT NULL,
+[Component_Id] [int] NOT NULL,
+[Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_stg_Jira_Issue_Component_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1766,8 +1526,8 @@ PRINT N'Creating [dbo].[tbl_Jira_Issue_Component]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Issue_Component]
 (
-   [Issue_Id] [int] NOT NULL,
-   [Component_Id] [int] NOT NULL,
+[Issue_Id] [int] NOT NULL,
+[Component_Id] [int] NOT NULL,
 [Update_Refresh_Id] [int] NOT NULL
 )
 GO
@@ -1789,20 +1549,19 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue_Component]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue_Component]
-	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue])
+    DELETE FROM [dbo].[tbl_Jira_Issue_Component]
+	WHERE [Issue_Id] IN (SELECT DISTINCT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue_Component]
+	INSERT INTO [dbo].[tbl_Jira_Issue_Component]
 	(
-      [Issue_Id],
-      [Component_Id],
+	    [Issue_Id],
+	    [Component_Id],
 	    [Update_Refresh_Id]
 	)
-   SELECT DISTINCT [Issue_Id],
-      [Component_Id],
+	SELECT DISTINCT [Issue_Id],
+	    [Component_Id],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue_Component]
+	FROM [dbo].[tbl_stg_Jira_Issue_Component]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1817,96 +1576,95 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Issue]
 AS
 BEGIN
-   DELETE FROM [dbo].[tbl_Jira_Issue]
-	WHERE [Issue_Id] IN (SELECT [Issue_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue])
+    DELETE FROM [dbo].[tbl_Jira_Issue]
+	WHERE [Issue_Id] IN (SELECT [Issue_Id] FROM [dbo].[tbl_stg_Jira_Issue])
 
-   INSERT INTO [dbo].[tbl_Jira_Issue]
+	INSERT INTO [dbo].[tbl_Jira_Issue]
 	(
-      [Issue_Id],
-      [Issue_Key],
-      [Issue_Type_Id],
-      [Project_Id],
-      [Project_Key],
-      [Time_Spent],
-      [Aggregate_Time_Spent],
-      [Resolution_Date],
-      [Work_Ratio],
-      [Created_Date],
-      [Time_Estimate],
-      [Aggregate_Time_Original_Estimate],
-      [Updated_Date],
-      [Time_Original_Estimate],
-      [Description],
-      [Aggregate_Time_Estimate],
-      [Summary],
-      [Due_Date],
-      [Flagged],
-      [External_Reporter_Name],
-      [External_Reporter_Email],
-      [External_Reporter_Department],
-      [Desired_Date],
-      [Chart_Date_Of_First_Response],
-      [Start_Date],
-      [Story_Points],
-      [Epic_Key],
-      [Resolution_Id],
+	    [Issue_Id],
+	    [Issue_Key],
+	    [Issue_Type_Id],
+	    [Project_Id],
+	    [Project_Key],
+	    [Time_Spent],
+	    [Aggregate_Time_Spent],
+	    [Resolution_Date],
+	    [Work_Ratio],
+	    [Created_Date],
+	    [Time_Estimate],
+	    [Aggregate_Time_Original_Estimate],
+	    [Updated_Date],
+	    [Time_Original_Estimate],
+	    [Description],
+	    [Aggregate_Time_Estimate],
+	    [Summary],
+	    [Due_Date],
+	    [Flagged],
+	    [External_Reporter_Name],
+	    [External_Reporter_Email],
+	    [External_Reporter_Department],
+	    [Desired_Date],
+	    [Chart_Date_Of_First_Response],
+	    [Start_Date],
+	    [Story_Points],
+	    [Epic_Key],
+	    [Resolution_Id],
 	    [Priority_Id],
-      [Assignee_User_Id],
-      [Assignee_User_Name],
-      [Status_Id],
-      [Creator_User_Id],
-      [Creator_User_Name],
-      [Reporter_User_Id],
-      [Reporter_User_Name],
-      [Votes],
-      [Parent_Id],
-      [Parent_Key],
-      [Epic_Name],
+	    [Assignee_User_Id],
+	    [Assignee_User_Name],
+	    [Status_Id],
+	    [Creator_User_Id],
+	    [Creator_User_Name],
+	    [Reporter_User_Id],
+	    [Reporter_User_Name],
+	    [Votes],
+	    [Parent_Id],
+	    [Parent_Key],
+		[Epic_Name],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Issue_Id],
-      [Issue_Key],
-      [Issue_Type_Id],
-      [Project_Id],
-      [Project_Key],
-      [Time_Spent],
-      [Aggregate_Time_Spent],
-      [Resolution_Date],
-      [Work_Ratio],
-      [Created_Date],
-      [Time_Estimate],
-      [Aggregate_Time_Original_Estimate],
-      [Updated_Date],
-      [Time_Original_Estimate],
+	SELECT [Issue_Id],
+	    [Issue_Key],
+	    [Issue_Type_Id],
+	    [Project_Id],
+	    [Project_Key],
+	    [Time_Spent],
+	    [Aggregate_Time_Spent],
+	    [Resolution_Date],
+	    [Work_Ratio],
+	    [Created_Date],
+	    [Time_Estimate],
+	    [Aggregate_Time_Original_Estimate],
+	    [Updated_Date],
+	    [Time_Original_Estimate],
 	    [Description],
-      [Aggregate_Time_Estimate],
-      [Summary],
-      [Due_Date],
-      [Flagged],
-      [External_Reporter_Name],
-      [External_Reporter_Email],
-      [External_Reporter_Department],
-      [Desired_Date],
-      [Chart_Date_Of_First_Response],
-      [Start_Date],
-      [Story_Points],
-      [Epic_Key],
-      [Resolution_Id],
-      [Priority_Id],
-      [Assignee_User_Id],
-      [Assignee_User_Name],
-      [Status_Id],
-      [Creator_User_Id],
-      [Creator_User_Name],
-      [Reporter_User_Id],
-      [Reporter_User_Name],
-      [Votes],
-      [Parent_Id],
-      [Parent_Key],
-      [Epic_Name],
+	    [Aggregate_Time_Estimate],
+	    [Summary],
+	    [Due_Date],
+	    [Flagged],
+	    [External_Reporter_Name],
+	    [External_Reporter_Email],
+	    [External_Reporter_Department],
+	    [Desired_Date],
+	    [Chart_Date_Of_First_Response],
+	    [Start_Date],
+	    [Story_Points],
+	    [Epic_Key],
+	    [Resolution_Id],
+	    [Priority_Id],
+	    [Assignee_User_Id],
+	    [Assignee_User_Name],
+	    [Status_Id],
+	    [Creator_User_Id],
+	    [Creator_User_Name],
+	    [Reporter_User_Id],
+	    [Reporter_User_Name],
+	    [Votes],
+	    [Parent_Id],
+	    [Parent_Key],
+		[Epic_Name],
 	    [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Issue]
+	FROM [dbo].[tbl_stg_Jira_Issue]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1915,16 +1673,16 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Component]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Component]
 (
-   [Component_Id] [int] NOT NULL,
-   [Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Project_Id] [int] NOT NULL,
+[Component_Id] [int] NOT NULL,
+[Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Project_Id] [int] NOT NULL,
 [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Real_Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Assignee_Type_Valid] [bit] NOT NULL,
+[Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Real_Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Assignee_Type_Valid] [bit] NOT NULL,
 [Refresh_Id] [int] NOT NULL
 )
 GO
@@ -1940,17 +1698,17 @@ PRINT N'Creating [dbo].[tbl_Jira_Component]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Component]
 (
-   [Component_Id] [int] NOT NULL,
-   [Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Project_Id] [int] NOT NULL,
+[Component_Id] [int] NOT NULL,
+[Project_Key] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Project_Id] [int] NOT NULL,
 [Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
 [Description] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Real_Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Assignee_Type_Valid] [bit] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Component_Update_Refresh_Id] DEFAULT ((0))
+[Lead_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Lead_User_Name] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Real_Assignee_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Assignee_Type_Valid] [bit] NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Component_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -1971,36 +1729,35 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Component]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Component]
-	WHERE [Project_Id] IN (SELECT DISTINCT [Project_Id]
-   FROM [dbo].[tbl_stg_Jira_Project])
+    DELETE FROM	[dbo].[tbl_Jira_Component]
+	WHERE [Project_Id] IN (SELECT DISTINCT [Project_Id] FROM [dbo].[tbl_stg_Jira_Project])
 
-   INSERT INTO [dbo].[tbl_Jira_Component]
+	INSERT INTO [dbo].[tbl_Jira_Component]
 	(
-      [Component_Id],
-      [Project_Key],
-      [Project_Id],
+	    [Component_Id],
+	    [Project_Key],
+	    [Project_Id],
 	    [Name],
 	    [Description],
-      [Lead_User_Id],
-      [Lead_User_Name],
-      [Assignee_Type],
-      [Real_Assignee_Type],
-      [Assignee_Type_Valid],
+	    [Lead_User_Id],
+	    [Lead_User_Name],
+	    [Assignee_Type],
+	    [Real_Assignee_Type],
+	    [Assignee_Type_Valid],
 	    [Update_Refresh_Id]
 	)
-   SELECT [Component_Id],
-      [Project_Key],
-      [Project_Id],
-		[Name],
-		[Description],
-      [Lead_User_Id],
-      [Lead_User_Name],
-      [Assignee_Type],
-      [Real_Assignee_Type],
-      [Assignee_Type_Valid],
-		[Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Component]
+	SELECT [Component_Id],
+	    [Project_Key],
+	    [Project_Id],
+	    [Name],
+	    [Description],
+	    [Lead_User_Id],
+	    [Lead_User_Name],
+	    [Assignee_Type],
+	    [Real_Assignee_Type],
+	    [Assignee_Type_Valid],
+	    [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Component]
 END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2009,12 +1766,12 @@ PRINT N'Creating [dbo].[tbl_stg_Jira_Changelog]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Changelog]
 (
-   [Changelog_Id] [int] NOT NULL,
-   [Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Created_Date] [datetime] NULL,
-   [Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Issue_Id] [int] NOT NULL,
-   [Refresh_Id] [int] NOT NULL
+[Changelog_Id] [int] NOT NULL,
+[Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Created_Date] [datetime] NULL,
+[Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Issue_Id] [int] NOT NULL,
+[Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2029,12 +1786,12 @@ PRINT N'Creating [dbo].[tbl_Jira_Changelog]'
 GO
 CREATE TABLE [dbo].[tbl_Jira_Changelog]
 (
-   [Changelog_Id] [int] NOT NULL,
-   [Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Created_Date] [datetime] NULL,
-   [Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-   [Issue_Id] [int] NOT NULL,
-   [Update_Refresh_Id] [int] NOT NULL
+[Changelog_Id] [int] NOT NULL,
+[Author_User_Id] [char] (43) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Created_Date] [datetime] NULL,
+[Changelog_Items] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Issue_Id] [int] NOT NULL,
+[Update_Refresh_Id] [int] NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2057,26 +1814,25 @@ GO
 CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Changelog]
 AS
 BEGIN
-   DELETE FROM	[dbo].[tbl_Jira_Changelog]
-	WHERE [Changelog_Id] IN (SELECT DISTINCT [Changelog_Id]
-   FROM [dbo].[tbl_stg_Jira_Changelog])
+    DELETE FROM	[dbo].[tbl_Jira_Changelog]
+	WHERE [Changelog_Id] IN (SELECT DISTINCT [Changelog_Id] FROM [dbo].[tbl_stg_Jira_Changelog])
 
-   INSERT INTO [dbo].[tbl_Jira_Changelog]
-      (
-      [Changelog_Id],
-      [Author_User_Id],
-      [Created_Date],
-      [Changelog_Items],
-      [Issue_Id],
-      [Update_Refresh_Id]
-      )
-   SELECT [Changelog_Id],
-      [Author_User_Id],
-      [Created_Date],
-      [Changelog_Items],
-      [Issue_Id],
-      [Refresh_Id]
-   FROM [dbo].[tbl_stg_Jira_Changelog]
+	INSERT INTO [dbo].[tbl_Jira_Changelog]
+	(
+	    [Changelog_Id],
+		[Author_User_Id],
+		[Created_Date],
+		[Changelog_Items],
+		[Issue_Id],
+	    [Update_Refresh_Id]
+	)
+	SELECT [Changelog_Id],
+		[Author_User_Id],
+		[Created_Date],
+		[Changelog_Items],
+		[Issue_Id],
+		[Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Changelog]
 END
 
 
@@ -2085,7 +1841,6 @@ IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating [dbo].[usp_Jira_Staging_Synchronize]'
 GO
-
 
 -- =============================================
 -- Author:		Justin Mead
@@ -2099,13 +1854,10 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-   EXEC [dbo].[usp_Jira_Staging_Sync_Changelog]
+	EXEC [dbo].[usp_Jira_Staging_Sync_Changelog]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Component]
-	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment]
-	EXEC [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Component]
-	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Deployment]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Fix_Version]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Label]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Link]
@@ -2123,12 +1875,9 @@ BEGIN
 	EXEC [dbo].[usp_Jira_Staging_Sync_Version]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Worklog]
 
-   IF @Sync_Deleted = 1 BEGIN
-      EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Deleted]
-   END
+	IF @Sync_Deleted = 1 BEGIN EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Deleted] END
 
 END
-
 
 
 GO
@@ -2137,13 +1886,12 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Project_Category]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Project_Category]
-AS
-   SELECT [Project_Category_Id]
-      , [Name]
-      , [Description]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Project_Category]
+CREATE VIEW [dbo].[vw_Jira_Project_Category] AS
+SELECT [Project_Category_Id]
+      ,[Name]
+      ,[Description]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Project_Category]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2164,9 +1912,7 @@ BEGIN
 	DECLARE @parentEpic AS VARCHAR(500)
 
 	SELECT @parentEpic = CASE
-							WHEN [IT].[Subtask_Type] = 1 THEN (SELECT [P].[Epic_Key]
-      FROM [dbo].[tbl_Jira_Issue] AS [P]
-      WHERE [P].[Issue_Id] = [I].[Parent_Id])
+							WHEN [IT].[Subtask_Type] = 1 THEN (SELECT [P].[Epic_Key] FROM [dbo].[tbl_Jira_Issue] AS [P] WHERE [P].[Issue_Id] = [I].[Parent_Id])
 							ELSE [I].[Epic_Key]
 						 END
 	FROM [dbo].[tbl_Jira_Issue] AS [I]
@@ -2193,8 +1939,8 @@ BEGIN
 
 	SELECT TOP 1
 		   [Refresh_ID]
-		  , [Refresh_Start]
-		  , [Refresh_Start_Unix]
+		  ,[Refresh_Start]
+		  ,[Refresh_Start_Unix]
 	FROM [dbo].[tbl_Jira_Refresh]
 	WHERE [Deleted] = 0
 	ORDER BY [Refresh_Start] DESC
@@ -2209,47 +1955,47 @@ GO
 CREATE VIEW [dbo].[vw_Jira_Issue_t1]
 AS
 SELECT [Issue_Id]
-      , [Issue_Key]
-      , [Issue_Type_Id]
-      , [Project_Id]
-      , [Project_Key]
-      , [Time_Spent]
-      , [Aggregate_Time_Spent]
-      , [Resolution_Date]
-      , [Work_Ratio]
-      , [Created_Date]
-      , [Time_Estimate]
-      , [Aggregate_Time_Original_Estimate]
-      , [Updated_Date]
-      , [Time_Original_Estimate]
-      , [Description]
-      , [Aggregate_Time_Estimate]
-      , [Summary]
-      , [Due_Date]
-      , [Flagged]
-      , [External_Reporter_Name]
-      , [External_Reporter_Email]
-      , [External_Reporter_Department]
-      , [Desired_Date]
-      , [Chart_Date_Of_First_Response]
-      , [Start_Date]
-      , [Story_Points]
-      , [Epic_Key]
-      , [Resolution_Id]
-      , [Priority_Id]
-      , [Assignee_User_Id]
-      , [Assignee_User_Name]
-      , [Status_Id]
-      , [Creator_User_Id]
-      , [Creator_User_Name]
-      , [Reporter_User_Id]
-      , [Reporter_User_Name]
-      , [Votes]
-      , [Parent_Id]
-      , [Parent_Key]
-      , [Update_Refresh_Id]
-	  , dbo.fn_Jira_Parent_Epic(Issue_Id) AS Parent_Epic_Key
-   FROM dbo.tbl_Jira_Issue
+      ,[Issue_Key]
+      ,[Issue_Type_Id]
+      ,[Project_Id]
+      ,[Project_Key]
+      ,[Time_Spent]
+      ,[Aggregate_Time_Spent]
+      ,[Resolution_Date]
+      ,[Work_Ratio]
+      ,[Created_Date]
+      ,[Time_Estimate]
+      ,[Aggregate_Time_Original_Estimate]
+      ,[Updated_Date]
+      ,[Time_Original_Estimate]
+      ,[Description]
+      ,[Aggregate_Time_Estimate]
+      ,[Summary]
+      ,[Due_Date]
+      ,[Flagged]
+      ,[External_Reporter_Name]
+      ,[External_Reporter_Email]
+      ,[External_Reporter_Department]
+      ,[Desired_Date]
+      ,[Chart_Date_Of_First_Response]
+      ,[Start_Date]
+      ,[Story_Points]
+      ,[Epic_Key]
+      ,[Resolution_Id]
+      ,[Priority_Id]
+      ,[Assignee_User_Id]
+      ,[Assignee_User_Name]
+      ,[Status_Id]
+      ,[Creator_User_Id]
+      ,[Creator_User_Name]
+      ,[Reporter_User_Id]
+      ,[Reporter_User_Name]
+      ,[Votes]
+      ,[Parent_Id]
+      ,[Parent_Key]
+      ,[Update_Refresh_Id]
+	  ,dbo.fn_Jira_Parent_Epic(Issue_Id) AS Parent_Epic_Key
+FROM            dbo.tbl_Jira_Issue
 
 
 GO
@@ -2258,13 +2004,12 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Resolution]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Resolution]
-AS
-   SELECT [Resolution_Id]
-      , [Name]
-      , [Description]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Resolution]
+CREATE VIEW [dbo].[vw_Jira_Resolution] AS
+SELECT [Resolution_Id]
+      ,[Name]
+      ,[Description]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Resolution]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2308,47 +2053,47 @@ GO
 CREATE VIEW [dbo].[vw_Jira_Issue]
 AS
 SELECT [Issue_Id]
-      , [Issue_Key]
-      , [Issue_Type_Id]
-      , [Project_Id]
-      , [Project_Key]
-      , [Time_Spent]
-      , [Aggregate_Time_Spent]
-      , [Resolution_Date]
-      , [Work_Ratio]
-      , [Created_Date]
-      , [Time_Estimate]
-      , [Aggregate_Time_Original_Estimate]
-      , [Updated_Date]
-      , [Time_Original_Estimate]
-      , [Description]
-      , [Aggregate_Time_Estimate]
-      , [Summary]
-      , [Due_Date]
-      , [Flagged]
-      , [External_Reporter_Name]
-      , [External_Reporter_Email]
-      , [External_Reporter_Department]
-      , [Desired_Date]
-      , [Chart_Date_Of_First_Response]
-      , [Start_Date]
-      , [Story_Points]
-      , [Epic_Key]
-      , [Resolution_Id]
-      , [Priority_Id]
-      , [Assignee_User_Id]
-      , [Assignee_User_Name]
-      , [Status_Id]
-      , [Creator_User_Id]
-      , [Creator_User_Name]
-      , [Reporter_User_Id]
-      , [Reporter_User_Name]
-      , [Votes]
-      , [Parent_Id]
-      , [Parent_Key]
-      , [Update_Refresh_Id]
-      , [Parent_Epic_Key]
-	  , [dbo].[fn_Jira_Virtual_Project_Key]([Issue_Id]) AS Virtual_Project_Key
+      ,[Issue_Key]
+      ,[Issue_Type_Id]
+      ,[Project_Id]
+      ,[Project_Key]
+      ,[Time_Spent]
+      ,[Aggregate_Time_Spent]
+      ,[Resolution_Date]
+      ,[Work_Ratio]
+      ,[Created_Date]
+      ,[Time_Estimate]
+      ,[Aggregate_Time_Original_Estimate]
+      ,[Updated_Date]
+      ,[Time_Original_Estimate]
+      ,[Description]
+      ,[Aggregate_Time_Estimate]
+      ,[Summary]
+      ,[Due_Date]
+      ,[Flagged]
+      ,[External_Reporter_Name]
+      ,[External_Reporter_Email]
+      ,[External_Reporter_Department]
+      ,[Desired_Date]
+      ,[Chart_Date_Of_First_Response]
+      ,[Start_Date]
+      ,[Story_Points]
+      ,[Epic_Key]
+      ,[Resolution_Id]
+      ,[Priority_Id]
+      ,[Assignee_User_Id]
+      ,[Assignee_User_Name]
+      ,[Status_Id]
+      ,[Creator_User_Id]
+      ,[Creator_User_Name]
+      ,[Reporter_User_Id]
+      ,[Reporter_User_Name]
+      ,[Votes]
+      ,[Parent_Id]
+      ,[Parent_Key]
+      ,[Update_Refresh_Id]
+      ,[Parent_Epic_Key]
+	  ,[dbo].[fn_Jira_Virtual_Project_Key]([Issue_Id]) AS Virtual_Project_Key
   FROM [Jira].[dbo].[vw_Jira_Issue_t1]
 
 
@@ -2379,7 +2124,7 @@ BEGIN
 		[Status]
 	)
 	VALUES
-      ( @currDate,
+	(   @currDate,
 	    DATEDIFF(s, '1970-01-01', @currDate),
 		@Type,
 		'S'
@@ -2394,45 +2139,14 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Status]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Status]
-AS
-   SELECT [Status_Id]
-      , [Status_Catgory_Id]
-      , [Name]
-      , [Description]
-      , [Icon_Url]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Status]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[vw_Jira_Deployment]'
-GO
-
-
-
-
-
-
-
-CREATE VIEW [dbo].[vw_Jira_Deployment]
-AS
-SELECT [Display_Name],
-	[Deployment_Url],
-	[State],
-	[Last_Updated],
-	[Pipeline_Id],
-	[Pipeline_Display_Name],
-	[Pipeline_Url],
-	[Environment_Id],
-	[Update_Refresh_Id]
-  FROM [dbo].[tbl_Jira_Deployment]
-
-
-
-
-
-
+CREATE VIEW [dbo].[vw_Jira_Status] AS
+SELECT [Status_Id]
+      ,[Status_Catgory_Id]
+      ,[Name]
+      ,[Description]
+      ,[Icon_Url]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Status]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2440,13 +2154,13 @@ PRINT N'Creating [dbo].[vw_Jira_Worklog_Sprint_Raw]'
 GO
 CREATE VIEW [dbo].[vw_Jira_Worklog_Sprint_Raw]
 AS
-   SELECT w.Worklog_Id, s.Sprint_Id
-   FROM dbo.tbl_Jira_Worklog AS w INNER JOIN
+SELECT        w.Worklog_Id, s.Sprint_Id
+FROM            dbo.tbl_Jira_Worklog AS w INNER JOIN
                          dbo.tbl_Jira_Sprint AS s ON w.Start_Date BETWEEN s.Start_Date AND CASE WHEN s.[Complete_Date] IS NULL 
                          THEN s.[End_Date] WHEN s.[End_Date] > s.[Complete_Date] THEN s.[End_Date] ELSE s.[Complete_Date] END
 WHERE        (w.Worklog_Id IN
-                             (SELECT w.Worklog_Id
-   FROM dbo.tbl_Jira_Issue_Sprint AS iSprint
+                             (SELECT        w.Worklog_Id
+                               FROM            dbo.tbl_Jira_Issue_Sprint AS iSprint
                                WHERE        (Issue_Id = w.Issue_Id)))
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2487,15 +2201,15 @@ FROM [dbo].[tbl_Jira_Sprint]
 UNION
 
 SELECT 0 AS [Sprint_Id]
-	, NULL AS [Rapid_View_Id]
-	, NULL AS [State]
-	, 'No Sprint' AS [Name]
-	, NULL AS [Goal]
-	, NULL AS [Start_Date]
-	, NULL AS [End_Date]
-	, NULL AS [Complete_Date]
-	, 0 AS [Sequence]
-	, NULL AS [Update_Refresh_Id]
+	,NULL AS [Rapid_View_Id]
+	,NULL AS [State]
+	,'No Sprint' AS [Name]
+	,NULL AS [Goal]
+	,NULL AS [Start_Date]
+	,NULL AS [End_Date]
+	,NULL AS [Complete_Date]
+	,0 AS [Sequence]
+	,NULL AS [Update_Refresh_Id]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2503,35 +2217,19 @@ PRINT N'Creating [dbo].[vw_Jira_Worklog_Sprint]'
 GO
 CREATE VIEW [dbo].[vw_Jira_Worklog_Sprint]
 AS
-         SELECT DISTINCT work.[Worklog_Id], 0 AS [Sprint_Id]
-      FROM [dbo].[tbl_Jira_Worklog] AS work LEFT JOIN
+SELECT        DISTINCT work.[Worklog_Id], 0 AS [Sprint_Id]
+FROM            [dbo].[tbl_Jira_Worklog] AS work LEFT JOIN
                          [dbo].[vw_Jira_Worklog_Sprint_Raw] AS sprint ON [sprint].[Worklog_Id] = work.[Worklog_Id]
 WHERE        [sprint].[Sprint_Id] IS NULL
 
 UNION
 
-      SELECT *
-      FROM [dbo].[vw_Jira_Worklog_Sprint_Raw]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[vw_Jira_Issue_Deployment]'
-GO
-
-
-CREATE VIEW [dbo].[vw_Jira_Issue_Deployment]
-AS
-SELECT [Issue_Id]
-      , [Deployment_Url]
-      , [Update_Refresh_Id]
-  FROM [dbo].[tbl_Jira_Issue_Deployment]
-
+SELECT * FROM [dbo].[vw_Jira_Worklog_Sprint_Raw]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating [dbo].[usp_Jira_Refresh_Clear_All]'
 GO
-
 
 
 
@@ -2550,13 +2248,10 @@ BEGIN
 	UPDATE [dbo].[tbl_Jira_Refresh]
 	SET [Deleted] = 1
 
-   TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
+	TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Component]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment_Environment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Component]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Deployment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Fix_Version]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Label]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Link]
@@ -2579,7 +2274,6 @@ END
 
 
 
-
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2589,48 +2283,20 @@ GO
 CREATE VIEW [dbo].[vw_Jira_Refresh]
 AS
 SELECT [Refresh_ID]
-      , [Refresh_Start]
-      , [Refresh_Start_Unix]
-      , [Refresh_End]
-      , [Refresh_End_Unix]
-	  , CAST(DATEDIFF(SECOND, [Refresh_Start], [Refresh_End]) AS FLOAT) / 60 AS [Duration_Minutes]
-      , [Type]
-      , [Status]
-      , [Deleted]
+      ,[Refresh_Start]
+      ,[Refresh_Start_Unix]
+      ,[Refresh_End]
+      ,[Refresh_End_Unix]
+	  ,CAST(DATEDIFF(SECOND, [Refresh_Start], [Refresh_End]) AS FLOAT) / 60 AS [Duration_Minutes]
+      ,[Type]
+      ,[Status]
+      ,[Deleted]
   FROM [dbo].[tbl_Jira_Refresh]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Creating [dbo].[vw_Jira_Deployment_Environment]'
-GO
-
-
-
-
-
-
-
-
-CREATE VIEW [dbo].[vw_Jira_Deployment_Environment]
-AS
-   SELECT [Environment_Id],
-	[Environment_Type],
-	[Display_Name],
-	[Update_Refresh_Id]
-  FROM [dbo].[tbl_Jira_Deployment_Environment]
-
-
-
-
-
-
-
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating [dbo].[usp_Jira_Staging_Clear]'
 GO
-
 
 
 -- =============================================
@@ -2644,14 +2310,11 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-   TRUNCATE TABLE [dbo].[tbl_stg_Jira_Changelog]
+    TRUNCATE TABLE [dbo].[tbl_stg_Jira_Changelog]
     TRUNCATE TABLE [dbo].[tbl_stg_Jira_Component]
-    TRUNCATE TABLE [dbo].[tbl_stg_Jira_Deployment]
-    TRUNCATE TABLE [dbo].[tbl_stg_Jira_Deployment_Environment]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_All_Id]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Component]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Deployment]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Fix_Version]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Label]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Link]
@@ -2671,7 +2334,6 @@ BEGIN
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Worklog_Delete]
 
 END
-
 
 
 GO
@@ -2695,8 +2357,7 @@ BEGIN
 	
 	DECLARE @Component AS VARCHAR(200)
 
-   SELECT TOP 1
-      @Component = [C].[Name]
+	SELECT TOP 1 @Component = [C].[Name]
 	FROM [dbo].[tbl_Jira_Component] AS [C]
 	INNER JOIN [dbo].[tbl_Jira_Issue_Component] AS [IC]
 	ON [IC].[Component_Id] = [C].[Component_Id]
@@ -2714,14 +2375,13 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Status_Category]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Status_Category]
-AS
-   SELECT [Status_Category_Id]
-      , [Name]
-      , [Key]
-      , [Color_Name]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Status_Category]
+CREATE VIEW [dbo].[vw_Jira_Status_Category] AS
+SELECT [Status_Category_Id]
+      ,[Name]
+      ,[Key]
+      ,[Color_Name]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Status_Category]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2743,8 +2403,7 @@ BEGIN
 	
 	DECLARE @Epic AS VARCHAR(200)
 
-   SELECT TOP 1
-      @Epic = ISNULL([E].[Epic_Name], [e].[Summary])
+	SELECT TOP 1 @Epic = ISNULL([E].[Epic_Name], [e].[Summary])
 	FROM [dbo].[vw_Jira_Epic] AS [E]
 	INNER JOIN [dbo].[tbl_Jira_Issue] AS [I]
 	ON [I].[Epic_Key] = [E].[Issue_Key]
@@ -2760,8 +2419,7 @@ PRINT N'Creating [dbo].[vw_Jira_Worklog]'
 GO
 
 
-CREATE VIEW [dbo].[vw_Jira_Worklog]
-AS
+CREATE VIEW [dbo].[vw_Jira_Worklog] AS
 SELECT [Worklog_Id],
     [Issue_Id],
     [Time_Spent],
@@ -2786,19 +2444,18 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Component]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Component]
-AS
+CREATE VIEW [dbo].[vw_Jira_Component] AS
 SELECT [Component_Id]
-      , [Project_Key]
-      , [Project_Id]
-      , [Name]
-      , [Description]
-      , [Lead_User_Id]
-      , [Lead_User_Name]
-      , [Assignee_Type]
-      , [Real_Assignee_Type]
-      , [Assignee_Type_Valid]
-      , [Update_Refresh_Id]
+      ,[Project_Key]
+      ,[Project_Id]
+      ,[Name]
+      ,[Description]
+      ,[Lead_User_Id]
+      ,[Lead_User_Name]
+      ,[Assignee_Type]
+      ,[Real_Assignee_Type]
+      ,[Assignee_Type_Valid]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Component]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2806,30 +2463,28 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_User]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_User]
-AS
-   SELECT [Account_Id]
-      , [Account_Type]
-      , [DisplayName]
-      , [Name]
-      , [Avatar_16]
-      , [Avatar_24]
-      , [Avatar_32]
-      , [Avatar_48]
-      , [Active]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_User]
+CREATE VIEW [dbo].[vw_Jira_User] AS
+SELECT [Account_Id]
+      ,[Account_Type]
+      ,[DisplayName]
+      ,[Name]
+      ,[Avatar_16]
+      ,[Avatar_24]
+      ,[Avatar_32]
+      ,[Avatar_48]
+      ,[Active]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_User]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating [dbo].[vw_Jira_Issue_Component]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Issue_Component]
-AS
+CREATE VIEW [dbo].[vw_Jira_Issue_Component] AS
 SELECT [Issue_Id]
-      , [Component_Id]
-      , [Update_Refresh_Id]
+      ,[Component_Id]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Issue_Component]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2837,11 +2492,10 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Issue_Fix_Version]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Issue_Fix_Version]
-AS
+CREATE VIEW [dbo].[vw_Jira_Issue_Fix_Version] AS
 SELECT [Issue_Id]
-      , [Version_Id]
-      , [Update_Refresh_Id]
+      ,[Version_Id]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Issue_Fix_Version]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2849,11 +2503,10 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Issue_Label]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Issue_Label]
-AS
+CREATE VIEW [dbo].[vw_Jira_Issue_Label] AS
 SELECT [Label]
-      , [Issue_Id]
-      , [Update_Refresh_Id]
+      ,[Issue_Id]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Issue_Label]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2861,15 +2514,14 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Issue_Link]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Issue_Link]
-AS
+CREATE VIEW [dbo].[vw_Jira_Issue_Link] AS
 SELECT [Issue_Link_Id]
-      , [Link_Type_Id]
-      , [In_Issue_Id]
-      , [In_Issue_Key]
-      , [Out_Issue_Id]
-      , [Out_Issue_Key]
-      , [Update_Refresh_Id]
+      ,[Link_Type_Id]
+      ,[In_Issue_Id]
+      ,[In_Issue_Key]
+      ,[Out_Issue_Id]
+      ,[Out_Issue_Key]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Issue_Link]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2877,32 +2529,30 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Version]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Version]
-AS
-   SELECT [Version_Id]
-      , [Project_Id]
-      , [Name]
-      , [Archived]
-      , [Released]
-      , [Start_Date]
-      , [Release_Date]
-      , [User_Start_Date]
-      , [User_Release_Date]
-      , [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Version]
+CREATE VIEW [dbo].[vw_Jira_Version] AS
+SELECT [Version_Id]
+      ,[Project_Id]
+      ,[Name]
+      ,[Archived]
+      ,[Released]
+      ,[Start_Date]
+      ,[Release_Date]
+      ,[User_Start_Date]
+      ,[User_Release_Date]
+      ,[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Version]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating [dbo].[vw_Jira_Issue_Link_Type]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Issue_Link_Type]
-AS
+CREATE VIEW [dbo].[vw_Jira_Issue_Link_Type] AS
 SELECT [Issue_Link_Type_Id]
-      , [Name]
-      , [Inward_Label]
-      , [Outward_Label]
-      , [Update_Refresh_Id]
+      ,[Name]
+      ,[Inward_Label]
+      ,[Outward_Label]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Issue_Link_Type]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2910,25 +2560,23 @@ GO
 PRINT N'Creating [dbo].[vw_lk_Jira_Refresh_Status]'
 GO
 
-CREATE VIEW [dbo].[vw_lk_Jira_Refresh_Status]
-AS
-   SELECT [Refresh_Status_Code]
-      , [Refresh_Status]
-   FROM [dbo].[tbl_lk_Jira_Refresh_Status]
+CREATE VIEW [dbo].[vw_lk_Jira_Refresh_Status] AS
+SELECT [Refresh_Status_Code]
+      ,[Refresh_Status]
+  FROM [dbo].[tbl_lk_Jira_Refresh_Status]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating [dbo].[vw_Jira_Issue_Type]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Issue_Type]
-AS
+CREATE VIEW [dbo].[vw_Jira_Issue_Type] AS
 SELECT [Issue_Type_Id]
-      , [Name]
-      , [Description]
-      , [Icon_Url]
-      , [Subtask_Type]
-      , [Update_Refresh_Id]
+      ,[Name]
+      ,[Description]
+      ,[Icon_Url]
+      ,[Subtask_Type]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Issue_Type]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2936,14 +2584,13 @@ GO
 PRINT N'Creating [dbo].[vw_Jira_Priority]'
 GO
 
-CREATE VIEW [dbo].[vw_Jira_Priority]
-AS
+CREATE VIEW [dbo].[vw_Jira_Priority] AS
 SELECT [Priority_Id]
-      , [Name]
-      , [Description]
-      , [Icon_Url]
-      , [Status_Color]
-      , [Update_Refresh_Id]
+      ,[Name]
+      ,[Description]
+      ,[Icon_Url]
+      ,[Status_Color]
+      ,[Update_Refresh_Id]
   FROM [dbo].[tbl_Jira_Priority]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2952,8 +2599,8 @@ PRINT N'Creating [dbo].[tbl_lk_Jira_Refresh_Type]'
 GO
 CREATE TABLE [dbo].[tbl_lk_Jira_Refresh_Type]
 (
-   [Refresh_Type_Code] [char] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-   [Refresh_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL
+[Refresh_Type_Code] [char] (1) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Refresh_Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL
 )
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
@@ -2967,11 +2614,10 @@ GO
 PRINT N'Creating [dbo].[vw_lk_Jira_Refresh_Type]'
 GO
 
-CREATE VIEW [dbo].[vw_lk_Jira_Refresh_Type]
-AS
-   SELECT [Refresh_Type_Code]
-      , [Refresh_Type]
-   FROM [dbo].[tbl_lk_Jira_Refresh_Type]
+CREATE VIEW [dbo].[vw_lk_Jira_Refresh_Type] AS
+SELECT [Refresh_Type_Code]
+      ,[Refresh_Type]
+  FROM [dbo].[tbl_lk_Jira_Refresh_Type]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -2983,15 +2629,15 @@ GO
 -- Description:	Sets the end time of a Jira refresh
 -- =============================================
 CREATE PROCEDURE [dbo].[usp_Jira_Refresh_Update_End]
-   @Refresh_Id AS INT,
-   @Status AS CHAR(1) = 'C'
+	@Refresh_Id AS INT,
+	@Status AS CHAR(1) = 'C'
 AS
 BEGIN
-   SET NOCOUNT ON;
+	SET NOCOUNT ON;
 
-   DECLARE @currDate AS DATETIME = GETDATE()
-
-   UPDATE [dbo].[tbl_Jira_Refresh]
+	DECLARE @currDate AS DATETIME = GETDATE()
+    
+	UPDATE [dbo].[tbl_Jira_Refresh]
 	SET [Refresh_End] = @currDate
 	   ,[Refresh_End_Unix] = DATEDIFF(s, '1970-01-01', @currDate)
 	   ,[Status] = @Status
@@ -3011,15 +2657,14 @@ GO
 
 
 
-CREATE VIEW [dbo].[vw_Jira_Changelog]
-AS
-   SELECT [Changelog_Id],
-      [Author_User_Id],
-      [Created_Date],
-      [Changelog_Items],
-      [Issue_Id],
-      [Update_Refresh_Id]
-   FROM [dbo].[tbl_Jira_Changelog]
+CREATE VIEW [dbo].[vw_Jira_Changelog] AS
+SELECT  [Changelog_Id],
+	[Author_User_Id],
+	[Created_Date],
+	[Changelog_Items],
+	[Issue_Id],
+	[Update_Refresh_Id]
+  FROM [dbo].[tbl_Jira_Changelog]
 
 
 
@@ -3869,18 +3514,6 @@ GRANT INSERT ON  [dbo].[tbl_stg_Jira_Component] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
-PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Deployment]'
-GO
-GRANT INSERT ON  [dbo].[tbl_stg_Jira_Deployment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Deployment_Environment]'
-GO
-GRANT INSERT ON  [dbo].[tbl_stg_Jira_Deployment_Environment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue] TO [JiraRefreshRole]
@@ -3896,12 +3529,6 @@ GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Component]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Component] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Deployment]'
-GO
-GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Deployment] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -4043,24 +3670,6 @@ GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Sync_Changelog] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
-PRINT N'Altering permissions on  [dbo].[usp_Jira_Staging_Sync_Deployment]'
-GO
-GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Sync_Deployment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[usp_Jira_Staging_Sync_Deployment_Environment]'
-GO
-GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Sync_Deployment_Environment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[usp_Jira_Staging_Sync_Issue_Deployment]'
-GO
-GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Sync_Issue_Deployment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
 PRINT N'Altering permissions on  [dbo].[usp_Jira_Staging_Synchronize]'
 GO
 GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Synchronize] TO [JiraRefreshRole]
@@ -4079,18 +3688,6 @@ GRANT SELECT ON  [dbo].[vw_Jira_Component] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
-PRINT N'Altering permissions on  [dbo].[vw_Jira_Deployment]'
-GO
-GRANT SELECT ON  [dbo].[vw_Jira_Deployment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[vw_Jira_Deployment_Environment]'
-GO
-GRANT SELECT ON  [dbo].[vw_Jira_Deployment_Environment] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
 PRINT N'Altering permissions on  [dbo].[vw_Jira_Epic]'
 GO
 GRANT SELECT ON  [dbo].[vw_Jira_Epic] TO [JiraRefreshRole]
@@ -4106,12 +3703,6 @@ GO
 PRINT N'Altering permissions on  [dbo].[vw_Jira_Issue_Component]'
 GO
 GRANT SELECT ON  [dbo].[vw_Jira_Issue_Component] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[vw_Jira_Issue_Deployment]'
-GO
-GRANT SELECT ON  [dbo].[vw_Jira_Issue_Deployment] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO

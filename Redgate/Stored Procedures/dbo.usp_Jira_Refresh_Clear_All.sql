@@ -22,11 +22,8 @@ BEGIN
 
 	TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Component]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Deployment_Environment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Component]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Deployment]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Fix_Version]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Label]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Link]
