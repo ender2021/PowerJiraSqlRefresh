@@ -34,6 +34,5 @@ BEGIN
 END
 
 
-GO
-GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Sync_Changelog] TO [JiraRefreshRole]
+
 GO

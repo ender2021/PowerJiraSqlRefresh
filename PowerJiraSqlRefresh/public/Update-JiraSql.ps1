@@ -153,7 +153,7 @@ function Update-JiraSql {
         #  REFRESH STEP 2 - PROJECTS                       #
         ####################################################
 
-        if ($options.Projects) {
+        if ($options.ContainsKey("Projects") -and $options.Projects -ne $false) {
             # update projects, and in the process get a full project key list if necessary
             $refreshProjectKeys = Update-JiraProjects -ProjectKeys $ProjectKeys @refreshSplat | ForEach-Object { $_.Project_Key }
         } else {
@@ -162,15 +162,16 @@ function Update-JiraSql {
         }
 
         ####################################################
-        #  REFRESH STEP 3 - PROJECT TAXONS                 #
+        #  REFRESH STEP 3 - PROJECT DETAILS                #
         ####################################################
 
-        if ($options.Projects) {
+        if ($options.ContainsKey("Projects") -and $options.Projects.GetType().Name -eq "Hashtable") {
             # next do the updates where the only context is the list of projects
-            Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat
-            Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat
+            if ($options.Projects.ContainsKey("Versions") -and $options.Projects.Versions -ne $false) { Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Versions" }
+            if ($options.Projects.ContainsKey("Components") -and $options.Projects.Components -ne $false) { Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Components" }
+            if ($options.Projects.ContainsKey("Actors") -and $options.Projects.Actors -ne $false) { Update-JiraProjectActors -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Actors" }
         } else {
-            Write-Verbose "Skipping Project Taxons"
+            Write-Verbose "Skipping Project Details"
         }
 
         ####################################################

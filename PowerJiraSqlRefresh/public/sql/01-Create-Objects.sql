@@ -1189,6 +1189,140 @@ END
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
+PRINT N'Creating [dbo].[tbl_stg_Jira_Project_Role]'
+GO
+CREATE TABLE [dbo].[tbl_stg_Jira_Project_Role]
+(
+[Role_Id] [int] NOT NULL,
+[Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_stg_Jira_Project_Role] on [dbo].[tbl_stg_Jira_Project_Role]'
+GO
+ALTER TABLE [dbo].[tbl_stg_Jira_Project_Role] ADD CONSTRAINT [PK_tbl_stg_Jira_Project_Role] PRIMARY KEY CLUSTERED  ([Role_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[tbl_Jira_Project_Role]'
+GO
+CREATE TABLE [dbo].[tbl_Jira_Project_Role]
+(
+[Role_Id] [int] NOT NULL,
+[Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_Jira_Project_Role] on [dbo].[tbl_Jira_Project_Role]'
+GO
+ALTER TABLE [dbo].[tbl_Jira_Project_Role] ADD CONSTRAINT [PK_tbl_Jira_Project_Role] PRIMARY KEY CLUSTERED  ([Role_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Project_Role]'
+GO
+
+-- =============================================
+-- Author:		Justin Mead
+-- Create date: 2020-05-30
+-- Description:	Synchronize the target Jira staging table to its production counterpart
+-- =============================================
+CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Project_Role]
+AS
+BEGIN
+    DELETE FROM	[dbo].[tbl_Jira_Project_Role]
+
+	INSERT INTO [dbo].[tbl_Jira_Project_Role]
+	(
+	    [Role_Id],
+	    [Name],
+	    [Refresh_Id]
+	)
+	SELECT [Role_Id],
+           [Name],
+           [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Project_Role]
+END
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[tbl_stg_Jira_Project_Actor]'
+GO
+CREATE TABLE [dbo].[tbl_stg_Jira_Project_Actor]
+(
+[Actor_Id] [int] NOT NULL,
+[Project_Key] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Role_Id] [int] NOT NULL,
+[Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Actor] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_stg_Jira_Project_Actor] on [dbo].[tbl_stg_Jira_Project_Actor]'
+GO
+ALTER TABLE [dbo].[tbl_stg_Jira_Project_Actor] ADD CONSTRAINT [PK_tbl_stg_Jira_Project_Actor] PRIMARY KEY CLUSTERED  ([Actor_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[tbl_Jira_Project_Actor]'
+GO
+CREATE TABLE [dbo].[tbl_Jira_Project_Actor]
+(
+[Actor_Id] [int] NOT NULL,
+[Project_Key] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Role_Id] [int] NOT NULL,
+[Type] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Actor] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[Refresh_Id] [int] NOT NULL
+)
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating primary key [PK_tbl_Jira_Project_Actor] on [dbo].[tbl_Jira_Project_Actor]'
+GO
+ALTER TABLE [dbo].[tbl_Jira_Project_Actor] ADD CONSTRAINT [PK_tbl_Jira_Project_Actor] PRIMARY KEY CLUSTERED  ([Actor_Id])
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[usp_Jira_Staging_Sync_Project_Actor]'
+GO
+
+-- =============================================
+-- Author:		Justin Mead
+-- Create date: 2020-05-30
+-- Description:	Synchronize the target Jira staging table to its production counterpart
+-- =============================================
+CREATE PROCEDURE [dbo].[usp_Jira_Staging_Sync_Project_Actor]
+AS
+BEGIN
+    DELETE FROM	[dbo].[tbl_Jira_Project_Actor]
+
+	INSERT	INTO [dbo].[tbl_Jira_Project_Actor]
+	(
+	    [Actor_Id],
+	    [Project_Key],
+	    [Role_Id],
+	    [Type],
+	    [Actor],
+	    [Refresh_Id]
+	)
+	SELECT [Actor_Id],
+           [Project_Key],
+           [Role_Id],
+           [Type],
+           [Actor],
+           [Refresh_Id]
+	FROM [dbo].[tbl_stg_Jira_Project_Actor]
+END
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
 PRINT N'Creating [dbo].[tbl_stg_Jira_Issue_Sprint]'
 GO
 CREATE TABLE [dbo].[tbl_stg_Jira_Issue_Sprint]
@@ -1866,7 +2000,9 @@ BEGIN
 	EXEC [dbo].[usp_Jira_Staging_Sync_Issue_Type]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Priority]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Project]
+	EXEC [dbo].[usp_Jira_Staging_Sync_Project_Actor]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Project_Category]
+	EXEC [dbo].[usp_Jira_Staging_Sync_Project_Role]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Resolution]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Sprint]
 	EXEC [dbo].[usp_Jira_Staging_Sync_Status]
@@ -2260,7 +2396,9 @@ BEGIN
 	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Type]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Priority]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Project]
+	TRUNCATE TABLE [dbo].[tbl_Jira_Project_Actor]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Project_Category]
+	TRUNCATE TABLE [dbo].[tbl_Jira_Project_Role]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Resolution]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Sprint]
 	TRUNCATE TABLE [dbo].[tbl_Jira_Status]
@@ -2323,7 +2461,9 @@ BEGIN
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Type]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Priority]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project]
+	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project_Actor]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project_Category]
+	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project_Role]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Resolution]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Sprint]
 	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Status]
@@ -2673,6 +2813,29 @@ SELECT  [Changelog_Id],
 
 
 
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[vw_Jira_Project_Actor]'
+GO
+CREATE VIEW [dbo].[vw_Jira_Project_Actor] AS 
+SELECT [Actor_Id],
+       [Project_Key],
+       [Role_Id],
+       [Type],
+       [Actor],
+       [Refresh_Id]
+FROM [dbo].[tbl_stg_Jira_Project_Actor]
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Creating [dbo].[vw_Jira_Project_Role]'
+GO
+CREATE VIEW [dbo].[vw_Jira_Project_Role] AS 
+SELECT [Role_Id],
+       [Name],
+       [Refresh_Id]
+FROM [dbo].[tbl_Jira_Project_Role]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3580,9 +3743,21 @@ GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
+PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project_Actor]'
+GO
+GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project_Actor] TO [JiraRefreshRole]
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project_Category]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project_Category] TO [JiraRefreshRole]
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project_Role]'
+GO
+GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project_Role] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3661,12 +3836,6 @@ GO
 PRINT N'Altering permissions on  [dbo].[usp_Jira_Staging_Clear]'
 GO
 GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Clear] TO [JiraRefreshRole]
-GO
-IF @@ERROR <> 0 SET NOEXEC ON
-GO
-PRINT N'Altering permissions on  [dbo].[usp_Jira_Staging_Sync_Changelog]'
-GO
-GRANT EXECUTE ON  [dbo].[usp_Jira_Staging_Sync_Changelog] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3754,9 +3923,21 @@ GRANT SELECT ON  [dbo].[vw_Jira_Project] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
+PRINT N'Altering permissions on  [dbo].[vw_Jira_Project_Actor]'
+GO
+GRANT SELECT ON  [dbo].[vw_Jira_Project_Actor] TO [JiraRefreshRole]
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
 PRINT N'Altering permissions on  [dbo].[vw_Jira_Project_Category]'
 GO
 GRANT SELECT ON  [dbo].[vw_Jira_Project_Category] TO [JiraRefreshRole]
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+PRINT N'Altering permissions on  [dbo].[vw_Jira_Project_Role]'
+GO
+GRANT SELECT ON  [dbo].[vw_Jira_Project_Role] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
