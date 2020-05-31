@@ -57,10 +57,10 @@ function Update-JiraProjectActors {
     end {
         $roleCount = $roles.Count
         Write-Verbose "Writing $roleCount Project Role record(s) to staging table"
-        $roles | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $roleTableName -Force
+        $roles | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $roleTableName
 
         $actorCount = $actors.Count
         Write-Verbose "Writing $actorCount Project Actor record(s) to staging table"
-        $actors | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $actorTableName -Force
+        $actors | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $actorTableName
     }
 }
