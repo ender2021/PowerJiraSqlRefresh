@@ -28,7 +28,11 @@ function Get-DefaultJiraSyncOptions {
             Priorities = $true
             IssueLinkTypes = $true
             Users = $true
-            Projects = $true
+            Projects = @{
+                Versions = $true
+                Components = $true
+                Actors = $true
+            }
             Worklogs = $true
             Issues = @{
                 Changelogs = $true
