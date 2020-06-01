@@ -10,7 +10,7 @@ RootModule = 'PowerJiraSqlRefresh.psm1'
 
 
 # Version number of this module.
-ModuleVersion = '1.0.14'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -31,7 +31,7 @@ Copyright = '(c) Justin Mead. All rights reserved.'
 Description = 'PowerShell module to refresh Jira Cloud instance data to a local SQL database'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '6.1'
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -52,7 +52,7 @@ PowerShellVersion = '6.1'
 RequiredModules = @(
     @{
         ModuleName="PowerJira"
-        ModuleVersion="2.0.1"
+        ModuleVersion="2.1.0"
         Guid="3f4b7dcb-70b5-4c11-8ad5-353ce5fcc1b4"
     },
     @{
