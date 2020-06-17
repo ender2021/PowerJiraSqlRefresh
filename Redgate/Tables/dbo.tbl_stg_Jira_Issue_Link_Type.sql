@@ -11,3 +11,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Issue_Link_Type] ADD CONSTRAINT [PK_tbl_stg_Jira
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Link_Type] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Link_Type] TO [JiraRefreshRole]
+GO

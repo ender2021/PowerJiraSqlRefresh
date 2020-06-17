@@ -47,3 +47,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Issue] ADD CONSTRAINT [PK_tbl_Jira_Issue_Staging
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue] TO [JiraRefreshRole]
+GO

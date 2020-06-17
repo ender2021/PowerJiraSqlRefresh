@@ -10,5 +10,7 @@ CREATE TABLE [dbo].[tbl_stg_Jira_Priority]
 GO
 ALTER TABLE [dbo].[tbl_stg_Jira_Priority] ADD CONSTRAINT [PK_tbl_stg_Jira_Priority] PRIMARY KEY CLUSTERED  ([Priority_Id]) ON [PRIMARY]
 GO
+GRANT INSERT ON  [dbo].[tbl_stg_Jira_Priority] TO [JiraRefreshRole]
+GO
 GRANT SELECT ON  [dbo].[tbl_stg_Jira_Priority] TO [JiraRefreshRole]
 GO

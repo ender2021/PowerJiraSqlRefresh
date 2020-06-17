@@ -10,3 +10,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Resolution] ADD CONSTRAINT [PK_tbl_stg_Jira_Reso
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Resolution] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Resolution] TO [JiraRefreshRole]
+GO

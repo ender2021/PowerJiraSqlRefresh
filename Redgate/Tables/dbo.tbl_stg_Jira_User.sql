@@ -16,3 +16,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_User] ADD CONSTRAINT [PK_tbl_stg_Jira_User] PRIM
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_User] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_User] TO [JiraRefreshRole]
+GO

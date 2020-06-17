@@ -16,3 +16,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Sprint] ADD CONSTRAINT [PK_tbl_Jira_Sprint_Stagi
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Sprint] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Sprint] TO [JiraRefreshRole]
+GO

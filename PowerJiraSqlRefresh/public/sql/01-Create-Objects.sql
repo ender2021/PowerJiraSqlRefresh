@@ -2384,28 +2384,28 @@ BEGIN
 	UPDATE [dbo].[tbl_Jira_Refresh]
 	SET [Deleted] = 1
 
-	TRUNCATE TABLE [dbo].[tbl_Jira_Changelog]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Component]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Component]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Fix_Version]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Label]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Link]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Link_Type]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Sprint]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Issue_Type]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Priority]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Project]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Project_Actor]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Project_Category]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Project_Role]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Resolution]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Sprint]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Status]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Status_Category]
-	TRUNCATE TABLE [dbo].[tbl_Jira_User]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Version]
-	TRUNCATE TABLE [dbo].[tbl_Jira_Worklog]
+	DELETE FROM [dbo].[tbl_Jira_Changelog]
+	DELETE FROM [dbo].[tbl_Jira_Component]
+	DELETE FROM [dbo].[tbl_Jira_Issue]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Component]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Fix_Version]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Label]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Link]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Link_Type]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Sprint]
+	DELETE FROM [dbo].[tbl_Jira_Issue_Type]
+	DELETE FROM [dbo].[tbl_Jira_Priority]
+	DELETE FROM [dbo].[tbl_Jira_Project]
+	DELETE FROM [dbo].[tbl_Jira_Project_Actor]
+	DELETE FROM [dbo].[tbl_Jira_Project_Category]
+	DELETE FROM [dbo].[tbl_Jira_Project_Role]
+	DELETE FROM [dbo].[tbl_Jira_Resolution]
+	DELETE FROM [dbo].[tbl_Jira_Sprint]
+	DELETE FROM [dbo].[tbl_Jira_Status]
+	DELETE FROM [dbo].[tbl_Jira_Status_Category]
+	DELETE FROM [dbo].[tbl_Jira_User]
+	DELETE FROM [dbo].[tbl_Jira_Version]
+	DELETE FROM [dbo].[tbl_Jira_Worklog]
 
 END
 
@@ -2448,30 +2448,30 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-    TRUNCATE TABLE [dbo].[tbl_stg_Jira_Changelog]
-    TRUNCATE TABLE [dbo].[tbl_stg_Jira_Component]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_All_Id]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Component]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Fix_Version]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Label]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Link]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Link_Type]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Sprint]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Issue_Type]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Priority]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project_Actor]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project_Category]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Project_Role]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Resolution]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Sprint]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Status]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Status_Category]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_User]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Version]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Worklog]
-	TRUNCATE TABLE [dbo].[tbl_stg_Jira_Worklog_Delete]
+    DELETE FROM [dbo].[tbl_stg_Jira_Changelog]
+    DELETE FROM [dbo].[tbl_stg_Jira_Component]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_All_Id]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Component]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Fix_Version]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Label]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Link]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Link_Type]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Sprint]
+	DELETE FROM [dbo].[tbl_stg_Jira_Issue_Type]
+	DELETE FROM [dbo].[tbl_stg_Jira_Priority]
+	DELETE FROM [dbo].[tbl_stg_Jira_Project]
+	DELETE FROM [dbo].[tbl_stg_Jira_Project_Actor]
+	DELETE FROM [dbo].[tbl_stg_Jira_Project_Category]
+	DELETE FROM [dbo].[tbl_stg_Jira_Project_Role]
+	DELETE FROM [dbo].[tbl_stg_Jira_Resolution]
+	DELETE FROM [dbo].[tbl_stg_Jira_Sprint]
+	DELETE FROM [dbo].[tbl_stg_Jira_Status]
+	DELETE FROM [dbo].[tbl_stg_Jira_Status_Category]
+	DELETE FROM [dbo].[tbl_stg_Jira_User]
+	DELETE FROM [dbo].[tbl_stg_Jira_Version]
+	DELETE FROM [dbo].[tbl_stg_Jira_Worklog]
+	DELETE FROM [dbo].[tbl_stg_Jira_Worklog_Delete]
 
 END
 
@@ -3669,11 +3669,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Changelog]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Changelog] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Changelog] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Component]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Component] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Component] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3681,11 +3685,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_All_Id]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_All_Id] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_All_Id] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3693,11 +3701,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Component]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Component] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Component] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Fix_Version]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Fix_Version] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Fix_Version] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3705,11 +3717,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Label]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Label] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Label] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Link]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Link] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Link] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3717,11 +3733,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Link_Type]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Link_Type] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Link_Type] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Sprint]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Sprint] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Sprint] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3729,9 +3749,13 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Issue_Type]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Type] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Type] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Priority]'
+GO
+GRANT INSERT ON  [dbo].[tbl_stg_Jira_Priority] TO [JiraRefreshRole]
 GO
 GRANT SELECT ON  [dbo].[tbl_stg_Jira_Priority] TO [JiraRefreshRole]
 GO
@@ -3741,11 +3765,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Project] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project_Actor]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project_Actor] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Project_Actor] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3753,11 +3781,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project_Category]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project_Category] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Project_Category] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Project_Role]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Project_Role] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Project_Role] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3765,11 +3797,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Resolution]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Resolution] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Resolution] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Sprint]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Sprint] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Sprint] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3777,11 +3813,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Status]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Status] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Status] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Status_Category]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Status_Category] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Status_Category] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3789,11 +3829,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_User]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_User] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_User] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Version]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Version] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Version] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
@@ -3801,11 +3845,15 @@ PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Worklog]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Worklog] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Worklog] TO [JiraRefreshRole]
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Altering permissions on  [dbo].[tbl_stg_Jira_Worklog_Delete]'
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Worklog_Delete] TO [JiraRefreshRole]
+GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Worklog_Delete] TO [JiraRefreshRole]
 GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO

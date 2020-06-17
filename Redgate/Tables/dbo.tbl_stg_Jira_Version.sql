@@ -16,3 +16,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Version] ADD CONSTRAINT [PK_tbl_Jira_Version_Sta
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Version] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Version] TO [JiraRefreshRole]
+GO

@@ -19,3 +19,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Worklog] ADD CONSTRAINT [PK_tbl_Jira_Worklogs_St
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Worklog] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Worklog] TO [JiraRefreshRole]
+GO

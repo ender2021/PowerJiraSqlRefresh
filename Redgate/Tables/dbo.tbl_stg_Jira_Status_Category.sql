@@ -11,3 +11,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Status_Category] ADD CONSTRAINT [PK_tbl_stg_Jira
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Status_Category] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Status_Category] TO [JiraRefreshRole]
+GO

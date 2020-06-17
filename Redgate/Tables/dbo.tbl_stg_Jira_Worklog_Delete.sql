@@ -7,3 +7,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Worklog_Delete] ADD CONSTRAINT [PK_tbl_stg_Jira_
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Worklog_Delete] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Worklog_Delete] TO [JiraRefreshRole]
+GO

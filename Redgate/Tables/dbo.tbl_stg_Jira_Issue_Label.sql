@@ -9,3 +9,5 @@ ALTER TABLE [dbo].[tbl_stg_Jira_Issue_Label] ADD CONSTRAINT [PK_tbl_stg_Jira_Iss
 GO
 GRANT INSERT ON  [dbo].[tbl_stg_Jira_Issue_Label] TO [JiraRefreshRole]
 GO
+GRANT SELECT ON  [dbo].[tbl_stg_Jira_Issue_Label] TO [JiraRefreshRole]
+GO
