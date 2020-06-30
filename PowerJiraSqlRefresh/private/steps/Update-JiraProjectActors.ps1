@@ -62,6 +62,6 @@ function Update-JiraProjectActors {
     
     end {
         Write-AtlassianData @sqlConnSplat -Data $roles -TableName $roleTableName
-        Write-AtlassianData @sqlConnSplat -Data $actorCount -TableName $actorTableName
+        Write-AtlassianData @sqlConnSplat -Data $actors -TableName $actorTableName
     }
 }
