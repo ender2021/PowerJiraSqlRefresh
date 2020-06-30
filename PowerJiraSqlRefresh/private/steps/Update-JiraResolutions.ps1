@@ -26,6 +26,12 @@ function Update-JiraResolutions {
         Write-Verbose "Updating Resolutions"
         $tableName = "tbl_stg_Jira_Resolution"
         $resolutions = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -34,7 +40,6 @@ function Update-JiraResolutions {
     }
     
     end {
-        Write-Verbose "Writing Resolutions to staging table"
-        $resolutions | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $resolutions -TableName $tableName
     }
 }

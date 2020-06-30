@@ -39,6 +39,12 @@ function Update-JiraWorklogs {
         $idList = @()
         $logs = @()
         $lastPageReached = $false
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -71,7 +77,6 @@ function Update-JiraWorklogs {
     }
     
     end {
-        Write-Verbose "Writing Worklogs to staging table"
-        $logs | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $logs -TableName $tableName
     }
 }

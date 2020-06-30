@@ -68,6 +68,12 @@ function Update-JiraIssues {
 
         #options
         $syncChangelogs = $null -ne $SyncOptions -and $SyncOptions.ContainsKey("Changelogs") -and $SyncOptions.Changelogs -ne $false
+    
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -179,42 +185,14 @@ function Update-JiraIssues {
     }
     
     end {
-        $issueTypesCount = $allIssueTypes.Count
-        Write-Verbose "Writing $issueTypesCount Issue Type record(s) to staging table"
-        $allIssueTypes | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueTypeTable
-
-        $sprintCount = $allSprints.Count
-        Write-Verbose "Writing $sprintCount Sprint record(s) to staging table"
-        $allSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $sprintTable
-
-        if ($syncChangelogs) {
-            $clCount = $allChangelogs.Count
-            Write-Verbose "Writing $clCount Changelog record(s) to staging table"
-            $allChangelogs | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $changelogTable
-        }
-
-        $issueCount = $allIssues.Count
-        Write-Verbose "Writing $issueCount Issue record(s) to staging table"
-        $allIssues | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $issueTable
-        
-        $labelCount = $issueLabels.Count
-        Write-Verbose "Writing $labelCount Issue Label record(s) to staging table"
-        $issueLabels | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLabelTable
-
-        $linksCount = $issueLinks.Count
-        Write-Verbose "Writing $linksCount Issue Link record(s) to staging table"
-        $issueLinks | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueLinkTable
-
-        $issSprintCount = $issueSprints.Count
-        Write-Verbose "Writing $issSprintCount Issue-Sprint Mapping record(s) to staging table"
-        $issueSprints | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueSprintTable
-
-        $issCompCount = $issueComponents.Count
-        Write-Verbose "Writing $issCompCount Issue-Component Mapping record(s) to staging table"
-        $issueComponents | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueComponentTable
-
-        $issFixCount = $issueFixVersions.Count
-        Write-Verbose "Writing $issFixCount Issue-Version Mapping record(s) to staging table"
-        $issueFixVersions | Write-SqlTableData -ServerInstance $sqlInstance -DatabaseName $sqlDatabase -SchemaName $schemaName -TableName $issueFixVersionTable
+        Write-AtlassianData @sqlConnSplat -Data $allIssueTypes -TableName $issueTypeTable
+        Write-AtlassianData @sqlConnSplat -Data $allSprints -TableName $sprintTable
+        Write-AtlassianData @sqlConnSplat -Data $allIssues -TableName $issueTable
+        Write-AtlassianData @sqlConnSplat -Data $issueLabels -TableName $issueLabelTable
+        Write-AtlassianData @sqlConnSplat -Data $issueLinks -TableName $issueLinkTable
+        Write-AtlassianData @sqlConnSplat -Data $issueSprints -TableName $issueSprintTable
+        Write-AtlassianData @sqlConnSplat -Data $issueComponents -TableName $issueComponentTable
+        Write-AtlassianData @sqlConnSplat -Data $issueFixVersions -TableName $issueFixVersionTable
+        if ($syncChangelogs) { Write-AtlassianData @sqlConnSplat -Data $allChangelogs -TableName $changelogTable }
     }
 }

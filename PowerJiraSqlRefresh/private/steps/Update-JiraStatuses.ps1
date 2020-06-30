@@ -26,6 +26,12 @@ function Update-JiraStatuses {
         Write-Verbose "Updating Statuses"
         $tableName = "tbl_stg_Jira_Status"
         $statuses = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -34,7 +40,6 @@ function Update-JiraStatuses {
     }
     
     end {
-        Write-Verbose "Writing Statuses to staging table"
-        $statuses | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $statuses -TableName $tableName
     }
 }

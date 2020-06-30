@@ -31,6 +31,12 @@ function Update-JiraComponents {
         Write-Verbose "Updating Components"
         $tableName = "tbl_stg_Jira_Component"
         $components = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -41,7 +47,6 @@ function Update-JiraComponents {
     }
     
     end {
-        Write-Verbose "Writing Components to staging table"
-        $components | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $components -TableName $tableName
     }
 }

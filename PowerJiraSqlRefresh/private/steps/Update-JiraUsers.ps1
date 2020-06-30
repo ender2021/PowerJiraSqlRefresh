@@ -26,6 +26,12 @@ function Update-JiraUsers {
         Write-Verbose "Updating Users"
         $tableName = "tbl_stg_Jira_User"
         $users = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -34,7 +40,6 @@ function Update-JiraUsers {
     }
     
     end {
-        Write-Verbose "Writing Users to staging table"
-        $users | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $users -TableName $tableName
     }
 }

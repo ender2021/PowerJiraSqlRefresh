@@ -35,6 +35,12 @@ function Update-JiraProjectActors {
         
         $roleTableName = "tbl_stg_Jira_Project_Role"
         $roles = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -55,12 +61,7 @@ function Update-JiraProjectActors {
     }
     
     end {
-        $roleCount = $roles.Count
-        Write-Verbose "Writing $roleCount Project Role record(s) to staging table"
-        $roles | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $roleTableName
-
-        $actorCount = $actors.Count
-        Write-Verbose "Writing $actorCount Project Actor record(s) to staging table"
-        $actors | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $actorTableName
+        Write-AtlassianData @sqlConnSplat -Data $roles -TableName $roleTableName
+        Write-AtlassianData @sqlConnSplat -Data $actorCount -TableName $actorTableName
     }
 }

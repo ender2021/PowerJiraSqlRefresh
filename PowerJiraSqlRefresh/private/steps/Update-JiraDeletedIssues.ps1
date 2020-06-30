@@ -24,7 +24,7 @@ function Update-JiraDeletedIssues {
     
     begin {
         Write-Verbose "Performing deleted Issue check"
-        $table = "tbl_stg_Jira_Issue_All_Id"
+        $tableName = "tbl_stg_Jira_Issue_All_Id"
         
         #results arrays
         $allIssueIds = @()
@@ -33,6 +33,12 @@ function Update-JiraDeletedIssues {
         #looping variables
         $startAt = 0
         $lastPageReached = $false
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -70,8 +76,8 @@ function Update-JiraDeletedIssues {
     
     end {
         if (!$fatalError) {
-            Write-Verbose "Writing all Issue Ids to staging table"
-            $allIssueIds | ForEach-Object { [pscustomobject]@{ Issue_Id = [int]$_ } } | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $table -Force
+            $toWrite = $allIssueIds | ForEach-Object { [pscustomobject]@{ Issue_Id = [int]$_ } }
+            Write-AtlassianData @sqlConnSplat -Data $toWrite -TableName $tableName
             return $true
         } else {
             Write-Verbose "Skipping delete synchronization step"

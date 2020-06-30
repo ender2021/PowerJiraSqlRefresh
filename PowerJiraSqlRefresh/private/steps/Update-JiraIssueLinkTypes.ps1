@@ -26,6 +26,12 @@ function Update-JiraIssueLinkTypes {
         Write-Verbose "Updating Issue Link Types"
         $tableName = "tbl_stg_Jira_Issue_Link_Type"
         $types = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -34,7 +40,6 @@ function Update-JiraIssueLinkTypes {
     }
     
     end {
-        Write-Verbose "Writing Issue Link Types to staging table"
-        $types | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $types -TableName $tableName
     }
 }

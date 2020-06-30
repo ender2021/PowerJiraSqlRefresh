@@ -33,6 +33,12 @@ function Update-JiraProjects {
         Write-Verbose "Updating Projects"
         $tableName = "tbl_stg_Jira_Project"
         $projects = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
         
         #if no keys were supplied, then get all projects
         if (($null -eq $ProjectKeys) -or ($ProjectKeys.Count -eq 0))
@@ -77,8 +83,7 @@ function Update-JiraProjects {
     }
     
     end {
-        Write-Verbose "Writing Projects to staging table"
-        $projects | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $projects -TableName $tableName
         # this function is unique - need to return the objects in order to make sure the project key list for future requests is accurate
         $projects
     }

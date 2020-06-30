@@ -31,6 +31,12 @@ function Update-JiraVersions {
         Write-Verbose "Updating Versions"
         $tableName = "tbl_stg_Jira_Version"
         $versions = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -41,7 +47,6 @@ function Update-JiraVersions {
     }
     
     end {
-        Write-Verbose "Writing Versions to staging table"
-        $versions | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $versions -TableName $tableName
     }
 }

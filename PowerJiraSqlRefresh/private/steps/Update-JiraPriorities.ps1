@@ -26,6 +26,12 @@ function Update-JiraPriorities {
         Write-Verbose "Updating Priorities"
         $tableName = "tbl_stg_Jira_Priority"
         $priorities = @()
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -34,7 +40,6 @@ function Update-JiraPriorities {
     }
     
     end {
-        Write-Verbose "Writing Priorities to staging table"
-        $priorities | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        Write-AtlassianData @sqlConnSplat -Data $priorities -TableName $tableName
     }
 }
