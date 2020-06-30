@@ -33,6 +33,12 @@ function Remove-JiraWorklogs {
         #setup for looping
         $idList = @()
         $lastPageReached = $false
+
+        $sqlConnSplat = @{
+            DatabaseServer = $SqlInstance
+            DatabaseName = $SqlDatabase
+            SchemaName = $SchemaName
+        }
     }
     
     process {
@@ -61,7 +67,7 @@ function Remove-JiraWorklogs {
     }
     
     end {
-        Write-Verbose "Writing Worklog deletes to staging table"
-        $idList | ForEach-Object { [PSCustomObject]@{ Worklog_Id = [int]$_ } } | Write-SqlTableData -ServerInstance $SqlInstance -DatabaseName $SqlDatabase -SchemaName $SchemaName -TableName $tableName
+        $toWrite = $idList | ForEach-Object { [PSCustomObject]@{ Worklog_Id = [int]$_ } }
+        Write-AtlassianData @sqlConnSplat -Data $toWrite -TableName $tableName
     }
 }
