@@ -3,6 +3,7 @@ function Write-AtlassianData {
     param (
         # The data to be written
         [Parameter(Mandatory, Position=0)]
+        [AllowNull()]
         [object[]]
         $Data,
 
@@ -37,20 +38,22 @@ function Write-AtlassianData {
     }
     
     process {
-        $take = 1000
-        for($i=0; $i -lt $count; $i+=$take){
+        if ($count -gt 0) {
+            $take = 1000
+            for($i=0; $i -lt $count; $i+=$take){
 
-            $sqlParams = @{
-                InputData = $Data[$i..($i+$take-1)]
-                ServerInstance = $DatabaseServer
-                DatabaseName = $DatabaseName
-                SchemaName = $SchemaName
-                TableName = $TableName
-                Force = $Force
-                ConnectionTimeout = 60
-                Timeout = 60
+                $sqlParams = @{
+                    InputData = $Data[$i..($i+$take-1)]
+                    ServerInstance = $DatabaseServer
+                    DatabaseName = $DatabaseName
+                    SchemaName = $SchemaName
+                    TableName = $TableName
+                    Force = $Force
+                    ConnectionTimeout = 60
+                    Timeout = 60
+                }
+                Write-SqlTableData @sqlParams
             }
-            Write-SqlTableData @sqlParams
         }
     }
     end {
