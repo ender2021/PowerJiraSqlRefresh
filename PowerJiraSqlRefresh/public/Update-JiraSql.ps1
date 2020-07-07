@@ -84,11 +84,21 @@ function Update-JiraSql {
         $SyncOptions
     )
     
-    begin {
+    begin {}
+    
+    process {
         Write-Verbose "Beginning Jira data update on $SqlInstance in database $SqlDatabase"
         ####################################################
         #  CONFIGURATION                                   #
         ####################################################
+
+        #set the cmdlet to stop on error, but remember the original setting so we can put it back later
+        $originalErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Stop"
+
+        #set up some values to track occurance of errors
+        $refreshSuccess = $true
+        $refreshError = $null
 
         #configure the database targets
         $sqlSplat = @{
@@ -102,31 +112,43 @@ function Update-JiraSql {
             $options = Merge-Hashtable -Source $SyncOptions -Target $options
         }
 
-        ####################################################
-        #  GET PREVIOUS BATCH INFO / CLEAR PREVIOUS BATCH  #
-        ####################################################
-
-        $RefreshTypes = Get-JiraRefreshTypes
-
-        if ($RefreshType -eq $RefreshTypes.Full) {
-            Clear-JiraRefresh @sqlSplat
-            $lastRefreshStamp = 0
-            $lastRefreshDate = (Get-Date '1970-01-01')
-        } else {
-            $lastRefresh = Get-LastJiraRefresh @sqlSplat
-            $lastRefreshStamp = $lastRefresh.Refresh_Start_Unix
-            $lastRefreshDate = $lastRefresh.Refresh_Start
+        #test the sql connection
+        if (!(Test-SqlConnection $SqlInstance $SqlDatabase)) {
+            Write-Verbose "Error while validating database connection! Terminating refresh"
+            $ErrorActionPreference = $originalErrorAction
+            return $false
         }
 
-        ####################################################
-        #  BEGIN THE REFRESH BATCH                         #
-        ####################################################
+        try {
+            ####################################################
+            #  GET PREVIOUS BATCH INFO / CLEAR PREVIOUS BATCH  #
+            ####################################################
 
-        Clear-JiraStaging @sqlSplat
-        $refreshId = Start-JiraRefresh -RefreshType $RefreshType @sqlSplat
-    }
+            $RefreshTypes = Get-JiraRefreshTypes
+
+            if ($RefreshType -eq $RefreshTypes.Full) {
+                Clear-JiraRefresh @sqlSplat
+                $lastRefreshStamp = 0
+                $lastRefreshDate = (Get-Date '1970-01-01')
+            } else {
+                $lastRefresh = Get-LastJiraRefresh @sqlSplat
+                $lastRefreshStamp = $lastRefresh.Refresh_Start_Unix
+                $lastRefreshDate = $lastRefresh.Refresh_Start
+            }
+
+            ####################################################
+            #  BEGIN THE REFRESH BATCH                         #
+            ####################################################
+
+            Clear-JiraStaging @sqlSplat
+            $refreshId = Start-JiraRefresh -RefreshType $RefreshType @sqlSplat
+        } catch {
+            Write-Verbose "Error while initiating the batch! Terminating refresh"
+            $ErrorActionPreference = $originalErrorAction
+            Write-Error $_
+            return $false
+        }
     
-    process {
         ####################################################
         #  REFRESH STEP 0 - CONFIGURE                      #
         ####################################################
@@ -136,118 +158,152 @@ function Update-JiraSql {
             RefreshId = $refreshId
         } + $sqlSplat
 
-        ####################################################
-        #  REFRESH STEP 1 - NO CONTEXT DATA                #
-        ####################################################
+        try {
+            ####################################################
+            #  REFRESH STEP 1 - NO CONTEXT DATA                #
+            ####################################################
 
-        # these are mostly lookup tables
-        if ($options.ProjectCategories) { Update-JiraProjectCategories @refreshSplat } else { Write-Verbose "Skipping Project Categories" }
-        if ($options.StatusCategories) { Update-JiraStatusCategories @refreshSplat } else { Write-Verbose "Skipping Status Categories" }
-        if ($options.Statuses) { Update-JiraStatuses @refreshSplat } else { Write-Verbose "Skipping Statuses" }
-        if ($options.Resolutions) { Update-JiraResolutions @refreshSplat } else { Write-Verbose "Skipping Resolutions" }
-        if ($options.Priorities) { Update-JiraPriorities @refreshSplat } else { Write-Verbose "Skipping Priorities" }
-        if ($options.IssueLinkTypes) { Update-JiraIssueLinkTypes @refreshSplat } else { Write-Verbose "Skipping Issue Link Types" }
-        if ($options.Users) { Update-JiraUsers @refreshSplat } else { Write-Verbose "Skipping Users" }
+            # these are mostly lookup tables
+            if ($options.ProjectCategories) { Update-JiraProjectCategories @refreshSplat } else { Write-Verbose "Skipping Project Categories" }
+            if ($options.StatusCategories) { Update-JiraStatusCategories @refreshSplat } else { Write-Verbose "Skipping Status Categories" }
+            if ($options.Statuses) { Update-JiraStatuses @refreshSplat } else { Write-Verbose "Skipping Statuses" }
+            if ($options.Resolutions) { Update-JiraResolutions @refreshSplat } else { Write-Verbose "Skipping Resolutions" }
+            if ($options.Priorities) { Update-JiraPriorities @refreshSplat } else { Write-Verbose "Skipping Priorities" }
+            if ($options.IssueLinkTypes) { Update-JiraIssueLinkTypes @refreshSplat } else { Write-Verbose "Skipping Issue Link Types" }
+            if ($options.Users) { Update-JiraUsers @refreshSplat } else { Write-Verbose "Skipping Users" }
 
-        ####################################################
-        #  REFRESH STEP 2 - PROJECTS                       #
-        ####################################################
+            ####################################################
+            #  REFRESH STEP 2 - PROJECTS                       #
+            ####################################################
 
-        if ($options.ContainsKey("Projects") -and $options.Projects -ne $false) {
-            # update projects, and in the process get a full project key list if necessary
-            $refreshProjectKeys = Update-JiraProjects -ProjectKeys $ProjectKeys @refreshSplat | ForEach-Object { $_.Project_Key }
-        } else {
-            $refreshProjectKeys = $ProjectKeys
-            Write-Verbose "Skipping Projects"
-        }
-
-        ####################################################
-        #  REFRESH STEP 3 - PROJECT DETAILS                #
-        ####################################################
-
-        if ($options.ContainsKey("Projects") -and $options.Projects.GetType().Name -eq "Hashtable") {
-            # next do the updates where the only context is the list of projects
-            if ($options.Projects.ContainsKey("Versions") -and $options.Projects.Versions -ne $false) { Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Versions" }
-            if ($options.Projects.ContainsKey("Components") -and $options.Projects.Components -ne $false) { Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Components" }
-            if ($options.Projects.ContainsKey("Actors") -and $options.Projects.Actors -ne $false) { Update-JiraProjectActors -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Actors" }
-        } else {
-            Write-Verbose "Skipping Project Details"
-        }
-
-        ####################################################
-        #  REFRESH STEP 4 - WORKLOGS                       #
-        ####################################################
-
-        if ($options.Worklogs) {
-            # worklogs are refreshed based on the last unix timestamp of a refresh
-            # need to both update changed / new worklogs, and remove any that have been deleted
-            Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @refreshSplat
-            Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @sqlSplat
-        } else {
-            Write-Verbose "Skipping Worklogs"
-        }
-        
-
-        ####################################################
-        #  REFRESH STEP 5 - ISSUES                       #
-        ####################################################
-
-        if ($options.ContainsKey("Issues") -and $options.Issues -ne $false) {
-            # issues are retrieved using jql crafted from the date of last refresh and optionally a project key list
-
-            # first format the date stamp and create the updated date clause
-            $jqlUpdateDate = (Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm")
-            $updateJql = "updatedDate >= '$jqlUpdateDate'"
-
-            # if we're refreshing a specific list of projects, create the clause; otherwise, don't add a project clause
-            $projectJql = if($null -eq $ProjectKeys -or $ProjectKeys.Count -eq 0) {
-                ""
+            if ($options.ContainsKey("Projects") -and $options.Projects -ne $false) {
+                # update projects, and in the process get a full project key list if necessary
+                $refreshProjectKeys = Update-JiraProjects -ProjectKeys $ProjectKeys @refreshSplat | ForEach-Object { $_.Project_Key }
             } else {
-                " AND Project in (" + ($refreshProjectKeys -join ",") + ")"
+                $refreshProjectKeys = $ProjectKeys
+                Write-Verbose "Skipping Projects"
             }
 
-            # update issues with the crafted JQL
-            $updateIssueParams = @{
-                Jql = $updateJql + $projectJql
-                Obfuscate = $Obfuscate
-            }
-            if ($options.Issues.GetType().Name -eq "Hashtable") { $updateIssueParams.Add("SyncOptions",$options.Issues) }
-            $updateIssueParams += $refreshSplat
-            Update-JiraIssues @updateIssueParams
+            ####################################################
+            #  REFRESH STEP 3 - PROJECT DETAILS                #
+            ####################################################
 
-            #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
-            $deleteRetrieveSuccess = $false
-            if ($RefreshType -eq (Get-JiraRefreshTypes).Differential) {
-                # use the project list if we're doing a list, otherwise use a "true = true" type clause to get everything
-                $deleteRetrieveSuccess = if ($null -eq $ProjectKeys) {
-                    Update-JiraDeletedIssues -Jql "project is not EMPTY" @sqlSplat
+            if ($options.ContainsKey("Projects") -and $options.Projects.GetType().Name -eq "Hashtable") {
+                # next do the updates where the only context is the list of projects
+                if ($options.Projects.ContainsKey("Versions") -and $options.Projects.Versions -ne $false) { Update-JiraVersions -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Versions" }
+                if ($options.Projects.ContainsKey("Components") -and $options.Projects.Components -ne $false) { Update-JiraComponents -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Components" }
+                if ($options.Projects.ContainsKey("Actors") -and $options.Projects.Actors -ne $false) { Update-JiraProjectActors -ProjectKeys $refreshProjectKeys @refreshSplat } else { Write-Verbose "Skipping Project Actors" }
+            } else {
+                Write-Verbose "Skipping Project Details"
+            }
+
+            ####################################################
+            #  REFRESH STEP 4 - WORKLOGS                       #
+            ####################################################
+
+            if ($options.Worklogs) {
+                # worklogs are refreshed based on the last unix timestamp of a refresh
+                # need to both update changed / new worklogs, and remove any that have been deleted
+                Update-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @refreshSplat
+                Remove-JiraWorklogs -LastRefreshUnix $lastRefreshStamp @sqlSplat
+            } else {
+                Write-Verbose "Skipping Worklogs"
+            }
+            
+
+            ####################################################
+            #  REFRESH STEP 5 - ISSUES                       #
+            ####################################################
+
+            if ($options.ContainsKey("Issues") -and $options.Issues -ne $false) {
+                # issues are retrieved using jql crafted from the date of last refresh and optionally a project key list
+
+                # first format the date stamp and create the updated date clause
+                $jqlUpdateDate = (Get-Date $lastRefreshDate -format "yyyy-MM-dd HH:mm")
+                $updateJql = "updatedDate >= '$jqlUpdateDate'"
+
+                # if we're refreshing a specific list of projects, create the clause; otherwise, don't add a project clause
+                $projectJql = if($null -eq $ProjectKeys -or $ProjectKeys.Count -eq 0) {
+                    ""
                 } else {
-                    Update-JiraDeletedIssues -Jql $projectJql @sqlSplat
+                    " AND Project in (" + ($refreshProjectKeys -join ",") + ")"
                 }
+
+                # update issues with the crafted JQL
+                $updateIssueParams = @{
+                    Jql = $updateJql + $projectJql
+                    Obfuscate = $Obfuscate
+                }
+                if ($options.Issues.GetType().Name -eq "Hashtable") { $updateIssueParams.Add("SyncOptions",$options.Issues) }
+                $updateIssueParams += $refreshSplat
+                Update-JiraIssues @updateIssueParams
+
+                #if we're doing a diff refresh, pull down ALL issue IDs for the listed projects, in order to detect deleted issues
+                $deleteRetrieveSuccess = $false
+                if ($RefreshType -eq (Get-JiraRefreshTypes).Differential) {
+                    # use the project list if we're doing a list, otherwise use a "true = true" type clause to get everything
+                    $deleteRetrieveSuccess = if ($null -eq $ProjectKeys) {
+                        Update-JiraDeletedIssues -Jql "project is not EMPTY" @sqlSplat
+                    } else {
+                        Update-JiraDeletedIssues -Jql $projectJql @sqlSplat
+                    }
+                }
+            } else {
+                Write-Verbose "Skipping Issues"
             }
-        } else {
-            Write-Verbose "Skipping Issues"
+            
+
+            ####################################################
+            #  REFRESH STEP 6 - SYNC STAGING TO LIVE TABLES    #
+            ####################################################
+
+            #determine if deletes should be synced
+            $syncDelete = $deleteRetrieveSuccess -and ($RefreshType -eq $RefreshTypes.Differential)
+
+            #perform the sync
+            Sync-JiraStaging -SyncDeleted $syncDelete @sqlSplat
+        } catch {
+            ####################################################
+            #  HANDLE ERROR OCCURING DURING REFRESH            #
+            ####################################################
+            Write-Verbose "Error while executing the batch! Terminating refresh"
+            $refreshSuccess = $false
+            $refreshError = $_
         }
-        
 
-        ####################################################
-        #  REFRESH STEP 6 - SYNC STAGING TO LIVE TABLES    #
-        ####################################################
-
-        #determine if deletes should be synced
-        $syncDelete = $deleteRetrieveSuccess -and ($RefreshType -eq $RefreshTypes.Differential)
-
-        #perform the sync
-        Sync-JiraStaging -SyncDeleted $syncDelete @sqlSplat
-    }
-    
-    end {
         ####################################################
         #  RECORD BATCH END                                #
         ####################################################
+        $batchTermError = $null
+        try {
+            Stop-JiraRefresh @refreshSplat -Success $refreshSuccess
+        } catch {
+            Write-Verbose "Error while recording batch end! Exiting without recording"
+            $refreshSuccess = $false
+            $batchTermError = $_
+        }
 
-        Stop-JiraRefresh @refreshSplat
+        ####################################################
+        #  RETURN SUCCESS / FAILURE, OUTPUT ERRORS         #
+        ####################################################
+        $ErrorActionPreference = $originalErrorAction
+        if ($refreshSuccess) {
+            Write-Verbose "Jira update completed successfully!"
+            return $true
+        } else {
+            Write-Verbose "Jira updated completed with errors :("
+            if ($refreshError) {
+                Write-Verbose "Terminating Error:"
+                Write-Error $refreshError
+            }
+            if ($batchTermError) {
+                Write-Verbose "Batch End Recording Error:"
+                Write-Error $batchTermError
+            }
 
-        Write-Verbose "Jira update completed!"
+            return $false
+        }
     }
+    
+    end {}
 }
