@@ -56,9 +56,9 @@ RequiredModules = @(
         Guid="3f4b7dcb-70b5-4c11-8ad5-353ce5fcc1b4"
     },
     @{
-        ModuleName="SqlServer"
-        ModuleVersion="21.1.18179"
-        Guid="97C3B589-6545-4107-A061-3FE23A4E9195"
+        ModuleName="PowerAtlassianSqlRefreshCore"
+        ModuleVersion="1.0.0"
+        Guid="81705d41-c69d-431f-81dc-dedf3d93722d"
     }
 )
 
