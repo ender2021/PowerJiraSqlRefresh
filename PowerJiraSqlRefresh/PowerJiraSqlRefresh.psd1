@@ -10,7 +10,7 @@ RootModule = 'PowerJiraSqlRefresh.psm1'
 
 
 # Version number of this module.
-ModuleVersion = '1.2.1' 
+ModuleVersion = '1.2.2' 
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -57,7 +57,7 @@ RequiredModules = @(
     },
     @{
         ModuleName="PowerAtlassianSqlRefreshCore"
-        ModuleVersion="1.0.0"
+        ModuleVersion="1.0.1"
         Guid="81705d41-c69d-431f-81dc-dedf3d93722d"
     }
 )
