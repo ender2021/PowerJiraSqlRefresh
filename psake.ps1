@@ -38,6 +38,11 @@ Task Test -Depends Init  {
     $lines
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
+    # grab private functions from files
+    $privateFiles = Get-ChildItem -Path $PSScriptRoot\PowerJiraSqlRefresh\private -Recurse -Include *.ps1 -ErrorAction SilentlyContinue
+    if(@($privateFiles).Count -gt 0) { $privateFiles.FullName | ForEach-Object { . $_ } }
+
+
     # Gather test results. Store them in a variable and file
     $TestResults = Invoke-Pester -Path $ProjectRoot\Tests -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile"
 
