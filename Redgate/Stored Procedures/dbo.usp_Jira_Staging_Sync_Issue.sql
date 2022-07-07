@@ -55,6 +55,7 @@ BEGIN
 	    [Parent_Id],
 	    [Parent_Key],
 		[Epic_Name],
+		[Activity_Category],
 	    [Update_Refresh_Id]
 	)
 	SELECT [Issue_Id],
@@ -97,6 +98,7 @@ BEGIN
 	    [Parent_Id],
 	    [Parent_Key],
 		[Epic_Name],
+		[Activity_Category],
 	    [Refresh_Id]
 	FROM [dbo].[tbl_stg_Jira_Issue]
 END

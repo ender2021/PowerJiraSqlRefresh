@@ -8,6 +8,10 @@ SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
 GO
 BEGIN TRANSACTION
 GO
+GO
+IF @@ERROR <> 0 SET NOEXEC ON
+GO
+GO
 IF @@ERROR <> 0 SET NOEXEC ON
 GO
 PRINT N'Creating role JiraRefreshRole'
@@ -509,6 +513,7 @@ CREATE TABLE [dbo].[tbl_Jira_Issue]
 [Parent_Id] [int] NULL,
 [Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Activity_Category] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Issue_Update_Refresh_Id] DEFAULT ((0))
 )
 GO
@@ -1384,6 +1389,7 @@ CREATE TABLE [dbo].[tbl_stg_Jira_Issue]
 [Parent_Id] [int] NULL,
 [Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Activity_Category] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Refresh_Id] [int] NOT NULL
 )
 GO
@@ -1755,6 +1761,7 @@ BEGIN
 	    [Parent_Id],
 	    [Parent_Key],
 		[Epic_Name],
+		[Activity_Category],
 	    [Update_Refresh_Id]
 	)
 	SELECT [Issue_Id],
@@ -1797,6 +1804,7 @@ BEGIN
 	    [Parent_Id],
 	    [Parent_Key],
 		[Epic_Name],
+		[Activity_Category],
 	    [Refresh_Id]
 	FROM [dbo].[tbl_stg_Jira_Issue]
 END

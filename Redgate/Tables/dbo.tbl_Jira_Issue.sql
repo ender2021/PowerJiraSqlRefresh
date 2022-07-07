@@ -40,6 +40,7 @@ CREATE TABLE [dbo].[tbl_Jira_Issue]
 [Parent_Id] [int] NULL,
 [Parent_Key] [varchar] (260) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Epic_Name] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[Activity_Category] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 [Update_Refresh_Id] [int] NOT NULL CONSTRAINT [DF_tbl_Jira_Issue_Update_Refresh_Id] DEFAULT ((0))
 ) ON [PRIMARY]
 GO
