@@ -3,7 +3,7 @@
 #Publish to PowerShell Gallery with this key
 environment:
   NugetApiKey:
-    secure: fCQl63J18u9+krhlwnT4QS/7egGmglUD/XOY2Z3FiNTeSMyFeYCQOkwchLBSbBTU
+    secure: ieCKD9/0JWxEcnDVTi//pDIFpIYxZ5CrFb2WKTIo0lg6qxfUCJ8RvvbqOFcptvIf
 
 # Need the VS 2019 image b/c the rest all have a version of PowerShellGet that breaks
 image: Visual Studio 2019
