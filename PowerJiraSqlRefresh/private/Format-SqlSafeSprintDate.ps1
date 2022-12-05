@@ -3,6 +3,7 @@ function Format-SqlSafeSprintDate {
     param (
         # Value from sprint date string
         [Parameter(Mandatory,Position=0,ValueFromPipeline)]
+        [AllowEmptyString()]
         [string]
         $Date
     )
@@ -12,7 +13,7 @@ function Format-SqlSafeSprintDate {
     }
     
     process {
-        if($null -eq $Date -or $Date -eq '<null>') { 
+        if($null -eq $Date -or $Date -eq '<null>' -or $Date -eq '') { 
             $null 
         } else { 
             # Must be between 1/1/1753 12:00:00 AM and 12/31/9999 11:59:59 PM to be safe for SQL
