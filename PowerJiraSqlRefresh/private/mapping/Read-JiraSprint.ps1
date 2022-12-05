@@ -42,9 +42,9 @@ function Read-JiraSprint {
                 State = $resultObj.state
                 Name = $resultObj.name
                 Goal = $resultObj.goal
-                Start_Date = if($null -eq $resultObj.startDate -or $resultObj.completeDate -eq '<null>') { $null } else { [datetime](Get-Date $resultObj.startDate) }
-                End_Date = if($null -eq $resultObj.endDate -or $resultObj.completeDate -eq '<null>') { $null } else { [datetime](Get-Date $resultObj.endDate) }
-                Complete_Date = if ($null -eq $resultObj.completeDate -or $resultObj.completeDate -eq '<null>') { $null } else { [datetime](Get-Date $resultObj.completeDate) }
+                Start_Date = Format-SqlSafeSprintDate $resultObj.startDate
+                End_Date = Format-SqlSafeSprintDate $resultObj.endDate
+                Complete_Date = Format-SqlSafeSprintDate $resultObj.completeDate
                 Sequence = 0
                 Refresh_Id = $RefreshId
             }
